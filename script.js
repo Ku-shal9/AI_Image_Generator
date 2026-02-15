@@ -117,21 +117,14 @@ async function generateImage(prompt) {
     const { id } = submitData;
     console.log("[DEBUG] Generation ID:", id);
 
-    // Poll for status with exponential backoff
+    // Poll for status - use API's wait_time for optimal polling
     let statusData = null;
     let attempts = 0;
-    const maxAttempts = 60;
-    const initialDelay = 3000; // Wait 3 seconds before first check
-    let currentDelay = initialDelay;
-    const maxDelay = 10000; // Maximum wait time between polls
+    const maxAttempts = 30;
 
-    // Initial wait before first poll
-    console.log(
-      "[DEBUG] Waiting",
-      initialDelay / 1000,
-      "seconds before first check...",
-    );
-    await new Promise((resolve) => setTimeout(resolve, initialDelay));
+    // Wait 5 seconds before first check (most images take 5-10s to generate)
+    console.log("[DEBUG] Waiting 5 seconds before first check...");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     while (attempts < maxAttempts) {
       console.log(
@@ -156,13 +149,12 @@ async function generateImage(prompt) {
         break;
       }
 
+      // Use the wait_time from API if available, otherwise use 10 seconds
+      const waitTime = (statusData.wait_time || 10) * 1000;
       console.log(
-        `[DEBUG] Generation in progress, waiting ${currentDelay / 1000} seconds...`,
+        `[DEBUG] Generation in progress, waiting ${waitTime / 1000} seconds...`,
       );
-      await new Promise((resolve) => setTimeout(resolve, currentDelay));
-
-      // Exponential backoff - double the delay up to max
-      currentDelay = Math.min(currentDelay * 1.5, maxDelay);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
       attempts++;
     }
 
