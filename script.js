@@ -149,8 +149,8 @@ async function generateImage(prompt) {
         break;
       }
 
-      // Use the wait_time from API if available, otherwise use 10 seconds
-      const waitTime = (statusData.wait_time || 10) * 1000;
+      // Use the wait_time from API if available (it's in milliseconds), default to 3 seconds
+      const waitTime = statusData.wait_time || 3000;
       console.log(
         `[DEBUG] Generation in progress, waiting ${waitTime / 1000} seconds...`,
       );
