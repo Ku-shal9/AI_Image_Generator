@@ -94,14 +94,14 @@
              ============================================================ -->
         <aside class="sidebar" id="sidebar" aria-label="Prompt history sidebar">
           <div class="sidebar-header">
-            <span class="sidebar-title">History</span>
-            <!-- Collapse button for mobile -->
+            <span class="sidebar-title" id="sidebarTitle">History</span>
+            <!-- Collapse/Expand button -->
             <button
               id="sidebarCollapseBtn"
-              class="sidebar-toggle-btn d-lg-none"
-              aria-label="Collapse sidebar"
+              class="sidebar-collapse-btn"
+              aria-label="Toggle sidebar"
             >
-              ✕
+              <span class="collapse-icon">☰</span>
             </button>
           </div>
 
@@ -322,27 +322,46 @@
     <!-- Main app logic -->
     <script src="js/app.js"></script>
 
-    <!-- Mobile sidebar toggle script -->
+    <!-- Sidebar toggle script -->
     <script>
       /**
-       * Mobile sidebar toggle.
-       * Shows/hides the sidebar on small screens.
+       * Sidebar collapse/expand toggle.
+       * Works on all screen sizes - collapses width on desktop, height on mobile.
        */
       const sidebarToggle = document.getElementById("sidebarToggle");
       const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
       const sidebar = document.getElementById("sidebar");
+      const sidebarTitle = document.getElementById("sidebarTitle");
 
+      function updateCollapseButton() {
+        const isCollapsed = sidebar.classList.contains("collapsed");
+        const icon = sidebarCollapseBtn.querySelector(".collapse-icon");
+        if (icon) {
+          icon.textContent = isCollapsed ? "☰" : "✕";
+        }
+        if (sidebarTitle) {
+          sidebarTitle.style.opacity = isCollapsed ? "0" : "1";
+        }
+      }
+
+      // Navbar toggle button (mobile only)
       if (sidebarToggle && sidebar) {
         sidebarToggle.addEventListener("click", function () {
           sidebar.classList.toggle("collapsed");
+          updateCollapseButton();
         });
       }
 
+      // Sidebar collapse button (desktop + mobile)
       if (sidebarCollapseBtn && sidebar) {
         sidebarCollapseBtn.addEventListener("click", function () {
-          sidebar.classList.add("collapsed");
+          sidebar.classList.toggle("collapsed");
+          updateCollapseButton();
         });
       }
+
+      // Initialize button state
+      updateCollapseButton();
     </script>
 
     <!-- ============================================================
