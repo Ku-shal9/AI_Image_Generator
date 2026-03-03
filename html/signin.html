@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In - Photo Galli</title>
+    <!-- Bootstrap CSS for responsive grid utilities -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Custom retro styles -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- ============================================================
+         NAVBAR - Minimal for sign-in page
+         ============================================================ -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <!-- Brand / Logo -->
+        <a class="navbar-brand" href="signin.html"> Photo<span>Galli</span> </a>
+
+        <!-- Theme toggle in navbar -->
+        <button id="themeToggleBtn" class="theme-toggle-btn ms-auto">
+          ☀️ Light
+        </button>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         SIGN-IN CONTENT
+         ============================================================ -->
+    <div class="page-wrapper">
+      <div class="auth-page">
+        <div class="auth-card">
+          <!-- Title -->
+          <h1 class="auth-title">PHOTO GALLI</h1>
+          <p class="auth-subtitle">AI Image Generator — Sign in to continue</p>
+
+          <!-- Role Selector: User or Admin -->
+          <div class="role-selector" role="group" aria-label="Select role">
+            <button
+              type="button"
+              class="role-btn active"
+              id="roleUserBtn"
+              aria-pressed="true"
+            >
+              👤 User
+            </button>
+            <button
+              type="button"
+              class="role-btn"
+              id="roleAdminBtn"
+              aria-pressed="false"
+            >
+              🛡 Admin
+            </button>
+          </div>
+
+          <!-- Sign-in Form -->
+          <form id="signinForm" novalidate>
+            <!-- Username -->
+            <div class="form-group">
+              <label class="form-label" for="usernameInput">Username</label>
+              <input
+                type="text"
+                id="usernameInput"
+                class="form-control-retro"
+                placeholder="Enter your username"
+                autocomplete="username"
+                required
+              />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label" for="passwordInput">Password</label>
+              <input
+                type="password"
+                id="passwordInput"
+                class="form-control-retro"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <!-- Error message -->
+            <div
+              id="signinError"
+              class="alert-retro alert-retro-danger d-none mb-3"
+              role="alert"
+            ></div>
+
+            <!-- Submit button -->
+            <button
+              type="submit"
+              class="btn-retro btn-retro-primary btn-retro-full"
+            >
+              ▶ Sign In
+            </button>
+          </form>
+
+          <!-- Demo credentials hint -->
+          <div class="auth-divider mt-4">Demo Credentials</div>
+          <div
+            style="
+              font-size: 0.78rem;
+              color: var(--text-muted);
+              text-align: center;
+              margin-top: 0.75rem;
+              line-height: 1.8;
+            "
+          >
+            <strong style="color: var(--text-secondary)">User:</strong> demo /
+            demo123<br />
+            <strong style="color: var(--text-secondary)">Admin:</strong> admin /
+            admin123
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Auth module (must load before page script) -->
+    <script src="../js/auth.js"></script>
+
+    <!-- Sign-in page logic -->
+    <script>
+      /**
+       * Sign-in page script.
+       * Handles role selection, form submission, and redirects.
+       */
+
+      // Redirect if already logged in
+      redirectIfLoggedIn();
+
+      // Apply saved theme on load
+      loadTheme();
+
+      // Update theme button text
+      const themeBtn = document.getElementById("themeToggleBtn");
+      if (themeBtn) {
+        const isLight = document.body.classList.contains("light-mode");
+        themeBtn.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+        themeBtn.addEventListener("click", toggleTheme);
+      }
+
+      // ---- Role Selection ----
+      let selectedRole = "user"; // Default role
+
+      const roleUserBtn = document.getElementById("roleUserBtn");
+      const roleAdminBtn = document.getElementById("roleAdminBtn");
+
+      roleUserBtn.addEventListener("click", function () {
+        selectedRole = "user";
+        roleUserBtn.classList.add("active");
+        roleAdminBtn.classList.remove("active");
+        roleUserBtn.setAttribute("aria-pressed", "true");
+        roleAdminBtn.setAttribute("aria-pressed", "false");
+      });
+
+      roleAdminBtn.addEventListener("click", function () {
+        selectedRole = "admin";
+        roleAdminBtn.classList.add("active");
+        roleUserBtn.classList.remove("active");
+        roleAdminBtn.setAttribute("aria-pressed", "true");
+        roleUserBtn.setAttribute("aria-pressed", "false");
+      });
+
+      // ---- Form Submission ----
+      const signinForm = document.getElementById("signinForm");
+      const signinError = document.getElementById("signinError");
+      const usernameInput = document.getElementById("usernameInput");
+      const passwordInput = document.getElementById("passwordInput");
+
+      signinForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        // Basic client-side validation
+        if (!username || !password) {
+          showError("Please enter both username and password.");
+          return;
+        }
+
+        // Attempt sign-in using auth module
+        const result = signIn(username, password, selectedRole);
+
+        if (result.success) {
+          // Redirect based on role
+          if (result.user.role === "admin") {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "index.html";
+          }
+        } else {
+          showError(result.message);
+        }
+      });
+
+      /**
+       * Shows an error message on the sign-in form.
+       * @param {string} message
+       */
+      function showError(message) {
+        signinError.textContent = message;
+        signinError.classList.remove("d-none");
+      }
+    </script>
+  </body>
+</html>
