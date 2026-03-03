@@ -1,0 +1,1782 @@
+/* ============================================================
+   Photo Galli - AI Image Generator
+   style.css - Global Styles with Retro Theme
+   ============================================================ */
+
+/* ---- Google Fonts Import ---- */
+@import url("https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Courier+Prime:wght@400;700&display=swap");
+
+/* ---- CSS Custom Properties (Variables) ---- */
+:root {
+  /* Retro color palette */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a2e;
+  --bg-sidebar: #0d0d1a;
+  --accent-primary: #00ff88;
+  --accent-secondary: #ff6b35;
+  --accent-tertiary: #7b2fff;
+  --accent-cyan: #00d4ff;
+  --text-primary: #e8e8f0;
+  --text-secondary: #a0a0b8;
+  --text-muted: #606080;
+  --border-color: #2a2a4a;
+  --border-glow: rgba(0, 255, 136, 0.3);
+  --danger: #ff3366;
+  --success: #00ff88;
+  --warning: #ffcc00;
+  --navbar-height: 64px;
+  --sidebar-width: 280px;
+
+  /* Light mode overrides */
+  --light-bg-primary: #f0ede8;
+  --light-bg-secondary: #e8e4dc;
+  --light-bg-card: #faf8f5;
+  --light-bg-sidebar: #e0dbd0;
+  --light-text-primary: #1a1a2e;
+  --light-text-secondary: #4a4a6a;
+  --light-border-color: #c8c0b0;
+}
+
+/* ---- Reset & Base ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Courier Prime", "Courier New", monospace;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  line-height: 1.6;
+}
+
+/* ---- Light Mode ---- */
+body.light-mode {
+  background-color: var(--light-bg-primary);
+  color: var(--light-text-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-card: var(--light-bg-card);
+  --bg-sidebar: var(--light-bg-sidebar);
+  --text-secondary: var(--light-text-secondary);
+  --border-color: var(--light-border-color);
+}
+
+body.light-mode .navbar {
+  background-color: var(--light-bg-secondary) !important;
+  border-bottom-color: var(--light-border-color);
+}
+
+body.light-mode .navbar-brand,
+body.light-mode .nav-link {
+  color: var(--light-text-primary) !important;
+}
+
+body.light-mode .sidebar {
+  background-color: var(--light-bg-sidebar);
+  border-right-color: var(--light-border-color);
+}
+
+body.light-mode .card-retro {
+  background-color: var(--light-bg-card);
+  border-color: var(--light-border-color);
+}
+
+body.light-mode .form-control-retro {
+  background-color: var(--light-bg-secondary);
+  color: var(--light-text-primary);
+  border-color: var(--light-border-color);
+}
+
+body.light-mode .history-item {
+  background-color: var(--light-bg-secondary);
+  border-color: var(--light-border-color);
+  color: var(--light-text-primary);
+}
+
+body.light-mode .history-item:hover {
+  background-color: var(--light-bg-card);
+  border-color: var(--accent-primary);
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+  height: var(--navbar-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(0, 255, 136, 0.1);
+}
+
+.navbar-brand {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.85rem !important;
+  color: var(--accent-primary) !important;
+  text-shadow: 0 0 10px var(--accent-primary);
+  letter-spacing: 1px;
+}
+
+.navbar-brand span {
+  color: var(--accent-secondary);
+}
+
+.nav-link {
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  color: var(--text-secondary) !important;
+  padding: 0.4rem 1rem !important;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--accent-primary) !important;
+  border-color: var(--accent-primary);
+  text-shadow: 0 0 8px var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.05);
+}
+
+.navbar-toggler {
+  border-color: var(--accent-primary) !important;
+}
+
+.navbar-toggler-icon {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(100deg);
+}
+
+/* Theme toggle in navbar */
+.theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-family: "Courier Prime", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* ============================================================
+   LAYOUT - MAIN CONTENT AREA
+   ============================================================ */
+.page-wrapper {
+  padding-top: var(--navbar-height);
+  min-height: 100vh;
+}
+
+/* Home page uses sidebar layout */
+.home-layout {
+  display: flex;
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: var(--navbar-height);
+  height: calc(100vh - var(--navbar-height));
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    width 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-title {
+  font-family: "VT323", monospace;
+  font-size: 1.4rem;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+
+.sidebar-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-body::-webkit-scrollbar-track {
+  background: var(--bg-sidebar);
+}
+
+.sidebar-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.sidebar-footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* History items in sidebar */
+.history-item {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.history-item:hover {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  background-color: rgba(0, 255, 136, 0.05);
+  transform: translateX(3px);
+}
+
+.history-item .history-prompt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.history-item .history-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.history-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 2rem 1rem;
+  font-family: "VT323", monospace;
+  font-size: 1.1rem;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA (Home page)
+   ============================================================ */
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+/* ============================================================
+   RETRO CARDS
+   ============================================================ */
+.card-retro {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-retro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-primary),
+    var(--accent-tertiary),
+    var(--accent-secondary)
+  );
+}
+
+.card-retro-title {
+  font-family: "VT323", monospace;
+  font-size: 1.6rem;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.form-control-retro {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: "Courier Prime", monospace;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  resize: vertical;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-control-retro:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.form-control-retro::placeholder {
+  color: var(--text-muted);
+}
+
+/* Select dropdown specific styles */
+select.form-control-retro {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  cursor: pointer;
+  padding-right: 2rem;
+  background-image: none;
+}
+
+/* Password input specific styles */
+input[type="password"].form-control-retro {
+  font-family: monospace;
+}
+
+/* Ensure all form controls are editable */
+input.form-control-retro,
+select.form-control-retro,
+textarea.form-control-retro {
+  pointer-events: auto;
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-retro {
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn-retro:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary - Green */
+.btn-retro-primary {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #000;
+}
+
+.btn-retro-primary:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--accent-primary);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+/* Secondary - Orange */
+.btn-retro-secondary {
+  background-color: transparent;
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
+}
+
+.btn-retro-secondary:hover:not(:disabled) {
+  background-color: var(--accent-secondary);
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+}
+
+/* Danger - Red */
+.btn-retro-danger {
+  background-color: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-retro-danger:hover:not(:disabled) {
+  background-color: var(--danger);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+}
+
+/* Cyan */
+.btn-retro-cyan {
+  background-color: transparent;
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.btn-retro-cyan:hover:not(:disabled) {
+  background-color: var(--accent-cyan);
+  color: #000;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+}
+
+/* Ghost */
+.btn-retro-ghost {
+  background-color: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.btn-retro-ghost:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* Full width */
+.btn-retro-full {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Small */
+.btn-retro-sm {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+}
+
+/* ============================================================
+   LOADING INDICATOR
+   ============================================================ */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.retro-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-family: "VT323", monospace;
+  font-size: 1.3rem;
+  color: var(--accent-primary);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   ERROR / ALERT
+   ============================================================ */
+.alert-retro {
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-retro-danger {
+  background-color: rgba(255, 51, 102, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.alert-retro-success {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.alert-retro-warning {
+  background-color: rgba(255, 204, 0, 0.1);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+/* ============================================================
+   IMAGE DISPLAY AREA (Home page - freshly generated)
+   ============================================================ */
+.generated-image-section {
+  display: none;
+}
+
+.generated-image-section.visible {
+  display: block;
+}
+
+.generated-image-wrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.generated-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.generated-image-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Model badge showing which AI was used */
+.model-badge {
+  display: inline-block;
+  background: linear-gradient(
+    135deg,
+    rgba(123, 47, 255, 0.2),
+    rgba(0, 212, 255, 0.2)
+  );
+  border: 1px solid var(--accent-tertiary);
+  color: var(--accent-cyan);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  font-family: "VT323", monospace;
+}
+
+/* Light mode styles for model badge */
+body.light-mode .model-badge {
+  background: linear-gradient(
+    135deg,
+    rgba(123, 47, 255, 0.15),
+    rgba(0, 212, 255, 0.15)
+  );
+  border-color: var(--accent-tertiary);
+  color: #5a1fd6;
+}
+
+/* ============================================================
+   PROFILE STYLES
+   ============================================================ */
+
+/* Profile button in navbar */
+.profile-btn {
+  background: none;
+  border: 2px solid var(--accent-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.profile-btn:hover {
+  box-shadow: 0 0 10px var(--accent-primary);
+  transform: scale(1.05);
+}
+
+.profile-avatar-small {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-initial {
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+}
+
+/* Profile modal styles */
+.profile-modal-content {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.profile-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 1rem;
+  color: var(--accent-primary);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px var(--accent-primary);
+}
+
+.profile-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-section-title {
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  color: var(--accent-secondary);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Profile avatar container */
+.profile-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-primary);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.profile-avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--accent-tertiary),
+    var(--accent-cyan)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 2rem;
+  color: var(--bg-primary);
+  border: 3px solid var(--accent-primary);
+}
+
+.profile-pic-upload-btn {
+  background: transparent;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Courier Prime", monospace;
+}
+
+.profile-pic-upload-btn:hover {
+  background: var(--accent-cyan);
+  color: var(--bg-primary);
+}
+
+/* Profile info rows */
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bg-secondary);
+}
+
+.profile-info-row:last-child {
+  border-bottom: none;
+}
+
+.profile-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.profile-value {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Rate limit bar in profile */
+.profile-rate-bar {
+  width: 100%;
+  height: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.profile-rate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.profile-rate-fill.exceeded {
+  background: linear-gradient(90deg, var(--danger), var(--accent-secondary));
+}
+
+.profile-rate-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: "VT323", monospace;
+}
+
+/* Profile form */
+.profile-form .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Light mode profile styles */
+body.light-mode .profile-avatar-placeholder {
+  background: linear-gradient(135deg, #7b2fff, #00d4ff);
+}
+
+body.light-mode .profile-initial {
+  color: #f0ede8;
+}
+
+/* Responsive profile styles */
+@media (max-width: 576px) {
+  .profile-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-avatar-large,
+  .profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-title {
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================================
+   PHOTOS PAGE - GALLERY GRID
+   ============================================================ */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.gallery-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.15);
+}
+
+.gallery-card-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-card-body {
+  padding: 0.75rem;
+}
+
+.gallery-card-prompt {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.gallery-card-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: "VT323", monospace;
+  font-size: 0.95rem;
+}
+
+.gallery-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+/* ============================================================
+   IMAGE MODAL (click to view full)
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-content {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+.modal-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+
+.modal-prompt {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.modal-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: "VT323", monospace;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* ============================================================
+   SIGN-IN PAGE
+   ============================================================ */
+.auth-page {
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.auth-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-primary),
+    var(--accent-tertiary),
+    var(--accent-secondary)
+  );
+}
+
+.auth-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 1rem;
+  color: var(--accent-primary);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px var(--accent-primary);
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.role-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.role-btn.active,
+.role-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.05);
+}
+
+.auth-divider {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.auth-divider::before {
+  left: 0;
+}
+.auth-divider::after {
+  right: 0;
+}
+
+/* ============================================================
+   ABOUT PAGE
+   ============================================================ */
+.about-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.about-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.about-hero-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 1.5rem;
+  color: var(--accent-primary);
+  text-shadow: 0 0 20px var(--accent-primary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.about-hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.about-section {
+  margin-bottom: 2rem;
+}
+
+.about-section-title {
+  font-family: "VT323", monospace;
+  font-size: 1.8rem;
+  color: var(--accent-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.how-it-works-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.step-number {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.7rem;
+  color: var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.1);
+  border: 1px solid var(--accent-primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding-top: 0.5rem;
+}
+
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tech-badge {
+  background-color: rgba(123, 47, 255, 0.15);
+  border: 1px solid var(--accent-tertiary);
+  color: var(--accent-tertiary);
+  border-radius: 4px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   ADMIN PAGE
+   ============================================================ */
+.admin-page {
+  padding: 2rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Create user form responsive grid */
+#createUserForm > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+@media (max-width: 768px) {
+  #createUserForm > div {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.9rem;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 10px var(--accent-secondary);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: "VT323", monospace;
+  font-size: 2.5rem;
+  color: var(--accent-primary);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table th {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background-color: rgba(0, 255, 136, 0.03);
+}
+
+.rate-limit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.rate-limit-ok {
+  background-color: rgba(0, 255, 136, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+}
+
+.rate-limit-warn {
+  background-color: rgba(255, 204, 0, 0.1);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+.rate-limit-exceeded {
+  background-color: rgba(255, 51, 102, 0.1);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+/* ============================================================
+   SECTION HEADERS
+   ============================================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-family: "VT323", monospace;
+  font-size: 1.6rem;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-family: "VT323", monospace;
+  font-size: 1.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-text {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+   RATE LIMIT WARNING
+   ============================================================ */
+.rate-limit-bar {
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.rate-limit-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  background: linear-gradient(90deg, var(--accent-primary), var(--warning));
+}
+
+.rate-limit-fill.exceeded {
+  background: var(--danger);
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+.text-accent {
+  color: var(--accent-primary);
+}
+.text-secondary-color {
+  color: var(--text-secondary);
+}
+.text-muted-color {
+  color: var(--text-muted);
+}
+.text-danger {
+  color: var(--danger);
+}
+.text-warning {
+  color: var(--warning);
+}
+.text-cyan {
+  color: var(--accent-cyan);
+}
+
+.d-none {
+  display: none !important;
+}
+.d-flex {
+  display: flex;
+}
+.d-block {
+  display: block;
+}
+.d-grid {
+  display: grid;
+}
+
+.gap-1 {
+  gap: 0.25rem;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-3 {
+  gap: 0.75rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-3 {
+  margin-top: 0.75rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.w-100 {
+  width: 100%;
+}
+.text-center {
+  text-align: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.align-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-center {
+  justify-content: center;
+}
+
+/* ============================================================
+   RETRO SCANLINE EFFECT (subtle)
+   ============================================================ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body.light-mode::after {
+  display: none;
+}
+
+/* ============================================================
+   RESPONSIVE - MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 100%;
+  }
+
+  .home-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .sidebar.collapsed {
+    max-height: 48px;
+    overflow: hidden;
+  }
+
+  .main-content {
+    overflow: visible;
+    height: auto;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .about-hero-title {
+    font-size: 1rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-table {
+    font-size: 0.75rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .modal-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    font-size: 0.65rem !important;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .role-selector {
+    flex-direction: column;
+  }
+}
+
+/* ============================================================
+   SIDEBAR TOGGLE BUTTON (mobile)
+   ============================================================ */
+.sidebar-toggle-btn {
+  display: none;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+}
+
+/* ============================================================
+   PIXEL BORDER ANIMATION (for generate button)
+   ============================================================ */
+@keyframes borderGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px var(--accent-primary);
+  }
+  50% {
+    box-shadow:
+      0 0 20px var(--accent-primary),
+      0 0 40px rgba(0, 255, 136, 0.3);
+  }
+}
+
+.btn-retro-primary.generating {
+  animation: borderGlow 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   SCROLLBAR GLOBAL
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.page-footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+/* ============================================================
+   ADMIN CREATE USER MODAL
+   ============================================================ */
+.create-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Flexbox row layout for create user form */
+.create-user-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.create-user-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.create-user-button {
+  flex-shrink: 0;
+}
+
+/* Responsive: stack vertically on small screens */
+@media (max-width: 768px) {
+  .create-user-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .create-user-button {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Ensure admin form fields are interactive */
+.create-user-form .form-control-retro,
+.create-user-field .form-control-retro {
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  cursor: text !important;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.create-user-form select.form-control-retro,
+.create-user-field select.form-control-retro {
+  cursor: pointer !important;
+}
+
+.create-user-field label {
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   PAYMENT WALL
+   ============================================================ */
+.payment-wall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 51, 102, 0.1),
+    rgba(123, 47, 255, 0.1)
+  );
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.payment-wall-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.85rem;
+  color: var(--danger);
+  margin-bottom: 1rem;
+}
+
+.payment-wall-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
