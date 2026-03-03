@@ -1625,16 +1625,19 @@ body.light-mode::after {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   border-radius: 4px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
   font-size: 0.8rem;
   transition: all 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
   .sidebar-toggle-btn {
     display: inline-flex;
-    align-items: center;
     gap: 0.3rem;
   }
 }
