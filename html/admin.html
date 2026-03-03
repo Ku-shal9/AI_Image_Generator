@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Photo Galli</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Custom retro styles -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- ============================================================
+         NAVBAR
+         ============================================================ -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="admin.html">
+          Photo<span>Galli</span>
+          <span
+            style="
+              font-size: 0.6rem;
+              color: var(--accent-secondary);
+              margin-left: 0.5rem;
+              vertical-align: middle;
+            "
+            >[ADMIN]</span
+          >
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+            <li class="nav-item">
+              <a class="nav-link active" href="admin.html">Dashboard</a>
+            </li>
+            <li class="nav-item ms-lg-2">
+              <span
+                id="navUserInfo"
+                class="text-accent"
+                style="font-size: 0.8rem; font-weight: 700"
+              ></span>
+            </li>
+            <li class="nav-item">
+              <button id="themeToggleBtn" class="theme-toggle-btn">
+                ☀️ Light
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                id="navSignOutBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+              >
+                Sign Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         ADMIN PANEL CONTENT
+         ============================================================ -->
+    <div class="page-wrapper">
+      <div class="admin-page">
+        <!-- Admin header -->
+        <div class="admin-header">
+          <h1 class="admin-title">⚙ Admin Dashboard</h1>
+          <div style="font-size: 0.8rem; color: var(--text-muted)">
+            Manage users, view histories, and set rate limits.
+          </div>
+        </div>
+
+        <!-- ---- Stats Cards ---- -->
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div id="statTotalUsers" class="stat-value">0</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+
+          <div class="stat-card">
+            <div id="statTotalImages" class="stat-value">0</div>
+            <div class="stat-label">Images Generated</div>
+          </div>
+
+          <div class="stat-card">
+            <div id="statTotalPrompts" class="stat-value">0</div>
+            <div class="stat-label">Total Prompts</div>
+          </div>
+        </div>
+
+        <!-- ---- Create New User ---- -->
+        <div class="card-retro mb-4">
+          <h2 class="card-retro-title">Create New User</h2>
+
+          <form id="createUserForm" class="create-user-form" novalidate>
+            <div class="create-user-row">
+              <!-- Username -->
+              <div class="create-user-field">
+                <label class="form-label" for="newUsername">Username</label>
+                <input
+                  type="text"
+                  id="newUsername"
+                  class="form-control-retro"
+                  placeholder="e.g., john_doe"
+                  required
+                />
+              </div>
+
+              <!-- Password -->
+              <div class="create-user-field">
+                <label class="form-label" for="newPassword">Password</label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  class="form-control-retro"
+                  placeholder="Min. 4 characters"
+                  required
+                  autocomplete="new-password"
+                />
+              </div>
+
+              <!-- Role -->
+              <div class="create-user-field">
+                <label class="form-label" for="newRole">Role</label>
+                <select id="newRole" name="newRole" class="form-control-retro">
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <!-- Submit -->
+              <div class="create-user-button">
+                <button
+                  type="submit"
+                  id="createUserBtn"
+                  class="btn-retro btn-retro-primary"
+                >
+                  + Create
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback message -->
+            <div id="createUserMsg" class="d-none mt-3" role="alert"></div>
+          </form>
+        </div>
+
+        <!-- ---- Users Table ---- -->
+        <div class="card-retro">
+          <div class="section-header">
+            <h2 class="card-retro-title" style="margin-bottom: 0">Users</h2>
+          </div>
+
+          <div style="overflow-x: auto">
+            <table class="admin-table" aria-label="Users management table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Generations</th>
+                  <th>Images Saved</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Rows rendered by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="page-footer">Photo Galli Admin Panel &copy; 2025</footer>
+    </div>
+
+    <!-- ============================================================
+         USER DETAIL MODAL
+         Shows a specific user's prompt history and gallery thumbnails.
+         ============================================================ -->
+    <div
+      id="userDetailModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="userDetailTitle"
+    >
+      <div class="modal-content" style="max-width: 750px">
+        <!-- Close button -->
+        <button
+          id="userDetailClose"
+          class="modal-close"
+          aria-label="Close user details"
+        >
+          ✕
+        </button>
+
+        <div class="modal-body" style="padding-top: 2rem">
+          <!-- Title -->
+          <h2
+            id="userDetailTitle"
+            style="
+              font-family: &quot;VT323&quot;, monospace;
+              font-size: 1.8rem;
+              color: var(--accent-primary);
+              margin-bottom: 1.5rem;
+            "
+          ></h2>
+
+          <!-- Prompt History -->
+          <div style="margin-bottom: 1.5rem">
+            <h3
+              style="
+                font-family: &quot;VT323&quot;, monospace;
+                font-size: 1.3rem;
+                color: var(--accent-secondary);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 0.75rem;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 0.4rem;
+              "
+            >
+              Prompt History
+            </h3>
+            <div
+              id="userDetailHistory"
+              style="max-height: 200px; overflow-y: auto"
+            ></div>
+          </div>
+
+          <!-- Gallery Thumbnails -->
+          <div>
+            <h3
+              style="
+                font-family: &quot;VT323&quot;, monospace;
+                font-size: 1.3rem;
+                color: var(--accent-secondary);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 0.75rem;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 0.4rem;
+              "
+            >
+              Saved Images
+            </h3>
+            <div id="userDetailGallery"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Auth module (must load first) -->
+    <script src="../js/auth.js"></script>
+
+    <!-- Admin panel logic -->
+    <script src="../js/admin.js"></script>
+
+    <!-- Fix for form field interaction issues -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Ensure password and role fields are properly enabled
+        const passwordField = document.getElementById("newPassword");
+        const roleField = document.getElementById("newRole");
+
+        if (passwordField) {
+          passwordField.disabled = false;
+          passwordField.readOnly = false;
+          passwordField.style.pointerEvents = "auto";
+          passwordField.style.userSelect = "auto";
+          passwordField.style.webkitUserSelect = "auto";
+          passwordField.style.cursor = "text";
+        }
+
+        if (roleField) {
+          roleField.disabled = false;
+          roleField.style.pointerEvents = "auto";
+          roleField.style.cursor = "pointer";
+        }
+
+        console.log("[Photo Galli] Form fields initialized");
+      });
+    </script>
+  </body>
+</html>
