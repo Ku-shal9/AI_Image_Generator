@@ -286,7 +286,7 @@ function signIn(username, password, role) {
  */
 function signOut() {
   clearSession();
-  window.location.href = "../html/signin.html";
+  window.location.href = "html/signin.html";
 }
 
 // ============================================================
@@ -470,7 +470,7 @@ function requireAdmin() {
  */
 function redirectIfLoggedIn() {
   if (isLoggedIn()) {
-    window.location.href = "../html/index.html";
+    window.location.href = "../index.html";
   }
 }
 

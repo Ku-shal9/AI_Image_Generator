@@ -7,53 +7,53 @@
  */
 
 // ============================================================
-// DOM ELEMENT REFERENCES
+// DOM ELEMENT REFERENCES (initialized in DOMContentLoaded)
 // ============================================================
 
 /** Prompt textarea where user types their image description */
-const promptInput = document.getElementById("promptInput");
+let promptInput;
 
 /** Button that triggers image generation */
-const generateBtn = document.getElementById("generateBtn");
+let generateBtn;
 
 /** Loading spinner container */
-const loadingEl = document.getElementById("loadingIndicator");
+let loadingEl;
 
 /** Error message container */
-const errorEl = document.getElementById("errorMessage");
+let errorEl;
 
 /** Container shown after a fresh image is generated */
-const freshSection = document.getElementById("freshSection");
+let freshSection;
 
 /** The freshly generated image element */
-const freshImg = document.getElementById("freshImg");
+let freshImg;
 
 /** Prompt text shown below the fresh image */
-const freshPromptText = document.getElementById("freshPromptText");
+let freshPromptText;
 
 /** Model badge showing which AI was used */
-const freshModelBadge = document.getElementById("freshModelBadge");
+let freshModelBadge;
 
 /** Download button for the fresh image */
-const freshDownloadBtn = document.getElementById("freshDownloadBtn");
+let freshDownloadBtn;
 
 /** Save-to-gallery button for the fresh image */
-const freshSaveBtn = document.getElementById("freshSaveBtn");
+let freshSaveBtn;
 
 /** Rate limit progress bar fill */
-const rateLimitFill = document.getElementById("rateLimitFill");
+let rateLimitFill;
 
 /** Rate limit text display */
-const rateLimitText = document.getElementById("rateLimitText");
+let rateLimitText;
 
 /** Sidebar history list container */
-const sidebarHistoryList = document.getElementById("sidebarHistoryList");
+let sidebarHistoryList;
 
 /** Sidebar empty state message */
-const sidebarEmptyState = document.getElementById("sidebarEmptyState");
+let sidebarEmptyState;
 
 /** Clear history button in sidebar */
-const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+let clearHistoryBtn;
 
 // ============================================================
 // STATE
@@ -562,49 +562,8 @@ function showPaymentWall() {
 }
 
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS (attached in DOMContentLoaded)
 // ============================================================
-
-// Generate button click
-if (generateBtn) {
-  generateBtn.addEventListener("click", generateImage);
-}
-
-// Allow pressing Enter in the textarea with Ctrl/Cmd to generate
-if (promptInput) {
-  promptInput.addEventListener("keydown", function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-      generateImage();
-    }
-  });
-}
-
-// Save to gallery button
-if (freshSaveBtn) {
-  freshSaveBtn.addEventListener("click", saveToGallery);
-}
-
-// Clear history button in sidebar
-if (clearHistoryBtn) {
-  clearHistoryBtn.addEventListener("click", function () {
-    if (confirm("Clear all prompt history?")) {
-      clearPromptHistory();
-      renderSidebarHistory();
-    }
-  });
-}
-
-// Theme toggle button
-const themeToggleBtn = document.getElementById("themeToggleBtn");
-if (themeToggleBtn) {
-  themeToggleBtn.addEventListener("click", toggleTheme);
-}
-
-// Sign out button
-const signOutBtn = document.getElementById("navSignOutBtn");
-if (signOutBtn) {
-  signOutBtn.addEventListener("click", signOut);
-}
 
 // ============================================================
 // PROFILE MODAL FUNCTIONS
@@ -786,6 +745,8 @@ function handlePasswordChange(e) {
 // INITIALIZE HOME PAGE
 // ============================================================
 
+console.log("[DEBUG] Setting up DOMContentLoaded listener");
+
 /**
  * Initializes the home page:
  * - Checks authentication
@@ -796,6 +757,27 @@ function handlePasswordChange(e) {
  * - Sets up profile modal event listeners
  */
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("[DEBUG] DOMContentLoaded fired - initializing DOM elements");
+
+  // Initialize DOM element references now that DOM is ready
+  promptInput = document.getElementById("promptInput");
+  generateBtn = document.getElementById("generateBtn");
+  loadingEl = document.getElementById("loadingIndicator");
+  errorEl = document.getElementById("errorMessage");
+  freshSection = document.getElementById("freshSection");
+  freshImg = document.getElementById("freshImg");
+  freshPromptText = document.getElementById("freshPromptText");
+  freshModelBadge = document.getElementById("freshModelBadge");
+  freshDownloadBtn = document.getElementById("freshDownloadBtn");
+  freshSaveBtn = document.getElementById("freshSaveBtn");
+  rateLimitFill = document.getElementById("rateLimitFill");
+  rateLimitText = document.getElementById("rateLimitText");
+  sidebarHistoryList = document.getElementById("sidebarHistoryList");
+  sidebarEmptyState = document.getElementById("sidebarEmptyState");
+  clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+  console.log("[DEBUG] promptInput initialized:", promptInput);
+
   // Guard: must be logged in to access home page
   requireAuth();
 
@@ -813,6 +795,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update rate limit display
   updateRateLimitUI();
+
+  // Attach event listeners now that DOM elements are initialized
+  console.log("[DEBUG] Attaching event listeners - generateBtn:", generateBtn);
+
+  // Generate button click
+  if (generateBtn) {
+    generateBtn.addEventListener("click", generateImage);
+  }
+
+  // Allow pressing Enter in the textarea with Ctrl/Cmd to generate
+  if (promptInput) {
+    promptInput.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        generateImage();
+      }
+    });
+  }
+
+  // Save to gallery button
+  if (freshSaveBtn) {
+    freshSaveBtn.addEventListener("click", saveToGallery);
+  }
+
+  // Clear history button in sidebar
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener("click", function () {
+      if (confirm("Clear all prompt history?")) {
+        clearPromptHistory();
+        renderSidebarHistory();
+      }
+    });
+  }
+
+  // Theme toggle button
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", toggleTheme);
+  }
+
+  // Sign out button
+  const signOutBtn = document.getElementById("navSignOutBtn");
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", signOut);
+  }
 
   // Update theme button text
   const isLight = document.body.classList.contains("light-mode");
