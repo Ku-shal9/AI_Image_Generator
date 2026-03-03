@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - Photo Galli</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Custom retro styles -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- ============================================================
+         NAVBAR
+         ============================================================ -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="index.html"> Photo<span>Galli</span> </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="photos.html">Photos</a>
+            </li>
+            <li class="nav-item ms-lg-2">
+              <span
+                id="navUserInfo"
+                class="text-accent"
+                style="font-size: 0.8rem; font-weight: 700"
+              ></span>
+            </li>
+            <li class="nav-item">
+              <button id="themeToggleBtn" class="theme-toggle-btn">
+                ☀️ Light
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                id="navSignOutBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+              >
+                Sign Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         ABOUT PAGE CONTENT
+         ============================================================ -->
+    <div class="page-wrapper">
+      <div class="about-page">
+        <!-- Hero Section -->
+        <div class="about-hero">
+          <h1 class="about-hero-title">PHOTO GALLI</h1>
+          <p class="about-hero-subtitle">
+            An AI-powered image generator built with pure frontend web
+            technologies. Type a prompt, get an image — it's that simple.
+          </p>
+        </div>
+
+        <!-- About the Generator -->
+        <div class="card-retro about-section">
+          <h2 class="about-section-title">About the Generator</h2>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.95rem;
+              line-height: 1.8;
+            "
+          >
+            <strong style="color: var(--text-primary)">Photo Galli</strong> is
+            an AI Image Generator Website developed using
+            <strong style="color: var(--accent-primary)">HTML</strong>,
+            <strong style="color: var(--accent-primary)">CSS</strong>, and
+            <strong style="color: var(--accent-primary)">JavaScript</strong>. It
+            allows users to enter a text prompt and generate AI-based images
+            through free API integration.
+          </p>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.95rem;
+              line-height: 1.8;
+              margin-top: 1rem;
+            "
+          >
+            The system takes user input, sends it to AI image generation APIs
+            (<strong>Puter.ai</strong> as primary, with
+            <strong>Pollinations.ai</strong> as fallback), fetches the generated
+            image in real-time, and displays it dynamically on the webpage.
+            Users can save images to their personal gallery, download them, and
+            view their prompt history.
+          </p>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.95rem;
+              line-height: 1.8;
+              margin-top: 1rem;
+            "
+          >
+            This project demonstrates real-world application of frontend web
+            development concepts such as DOM manipulation, API integration,
+            asynchronous JavaScript, responsive UI design, and dynamic content
+            rendering.
+          </p>
+        </div>
+
+        <!-- How It Works -->
+        <div class="card-retro about-section">
+          <h2 class="about-section-title">How It Works</h2>
+          <div class="how-it-works-steps">
+            <div class="step-item">
+              <div class="step-number">01</div>
+              <div class="step-text">
+                <strong style="color: var(--text-primary)">Sign In</strong> —
+                Create an account or use the demo credentials to access the
+                generator.
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">02</div>
+              <div class="step-text">
+                <strong style="color: var(--text-primary)"
+                  >Enter a Prompt</strong
+                >
+                — Describe the image you want in natural language. Be as
+                descriptive as you like!
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">03</div>
+              <div class="step-text">
+                <strong style="color: var(--text-primary)">Generate</strong> —
+                Click the Generate button. The app sends your prompt to
+                <strong>Puter.ai</strong> for real-time AI image generation.
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">04</div>
+              <div class="step-text">
+                <strong style="color: var(--text-primary)"
+                  >View &amp; Save</strong
+                >
+                — The generated image appears instantly. Download it or save it
+                to your personal gallery.
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">05</div>
+              <div class="step-text">
+                <strong style="color: var(--text-primary)"
+                  >Browse Gallery</strong
+                >
+                — Visit the Photos page to see all your saved images in a
+                responsive grid. Click any image to view it full-size with its
+                prompt.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technologies Used -->
+        <div class="card-retro about-section">
+          <h2 class="about-section-title">Technologies Used</h2>
+          <div class="tech-badges">
+            <span class="tech-badge">HTML5</span>
+            <span class="tech-badge">CSS3</span>
+            <span class="tech-badge">JavaScript (ES6+)</span>
+            <span class="tech-badge">Bootstrap 5</span>
+            <span class="tech-badge">Fetch API</span>
+            <span class="tech-badge">Async / Await</span>
+            <span class="tech-badge">DOM Manipulation</span>
+            <span class="tech-badge">localStorage</span>
+            <span class="tech-badge">CSS Flexbox</span>
+            <span class="tech-badge">CSS Grid</span>
+            <span class="tech-badge">Pollinations.ai API</span>
+            <span class="tech-badge">FLUX Model</span>
+            <span class="tech-badge">Stable Diffusion</span>
+            <span class="tech-badge">Responsive Design</span>
+            <span class="tech-badge">Media Queries</span>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="card-retro about-section">
+          <h2 class="about-section-title">Features</h2>
+          <ul
+            style="
+              color: var(--text-secondary);
+              font-size: 0.9rem;
+              line-height: 2;
+              padding-left: 1.5rem;
+            "
+          >
+            <li>
+              User authentication with role-based access (User &amp; Admin)
+            </li>
+            <li>
+              AI image generation via Pollinations.ai (FLUX, SDXL, Turbo models)
+            </li>
+            <li>Sidebar prompt history (like ChatGPT / Grok)</li>
+            <li>Personal gallery — each user sees only their own images</li>
+            <li>Image modal with full-size view, prompt display, and date</li>
+            <li>Download generated images</li>
+            <li>Rate limiting — 6 free generations per user</li>
+            <li>Admin panel — manage users, view histories, set rate limits</li>
+            <li>Dark / Light mode toggle</li>
+            <li>Fully responsive design (mobile, tablet, desktop)</li>
+            <li>Retro pixel-art inspired UI theme</li>
+          </ul>
+        </div>
+
+        <!-- GitHub Link -->
+        <div class="card-retro about-section text-center">
+          <h2 class="about-section-title">Source Code</h2>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.9rem;
+              margin-bottom: 1.5rem;
+            "
+          >
+            This project is open source. View the code, report issues, or
+            contribute on GitHub.
+          </p>
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-retro btn-retro-secondary"
+          >
+            ⬡ View on GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="page-footer">
+        Photo Galli &copy; 2025 — Built with HTML, CSS &amp; JavaScript for
+        WEB101
+      </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Auth module -->
+    <script src="../js/auth.js"></script>
+
+    <!-- About page initialization -->
+    <script>
+      /**
+       * About page initialization.
+       * Requires authentication, loads theme, updates navbar.
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        // Guard: must be logged in
+        requireAuth();
+
+        // Apply saved theme
+        loadTheme();
+
+        // Update navbar with user info
+        updateNavbarForUser();
+
+        // Theme toggle button
+        const themeBtn = document.getElementById("themeToggleBtn");
+        if (themeBtn) {
+          const isLight = document.body.classList.contains("light-mode");
+          themeBtn.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+          themeBtn.addEventListener("click", toggleTheme);
+        }
+
+        // Sign out button
+        const signOutBtn = document.getElementById("navSignOutBtn");
+        if (signOutBtn) {
+          signOutBtn.addEventListener("click", signOut);
+        }
+      });
+    </script>
+  </body>
+</html>
