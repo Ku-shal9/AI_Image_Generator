@@ -16,26 +16,38 @@
   </head>
   <body>
     <!-- ============================================================
-         NAVBAR
-         ============================================================ -->
+          NAVBAR
+          ============================================================ -->
     <nav class="navbar navbar-expand-lg">
-      <div class="container">
+      <div class="container-fluid px-3">
+        <!-- Brand -->
         <a class="navbar-brand" href="../index.html">
           Photo<span>Galli</span>
         </a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <!-- Mobile: sidebar toggle + hamburger -->
+        <div class="d-flex align-items-center gap-2 d-lg-none">
+          <button
+            id="sidebarToggle"
+            class="sidebar-toggle-btn"
+            aria-label="Toggle history sidebar"
+          >
+            ☰ History
+          </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
 
+        <!-- Nav links -->
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
             <li class="nav-item">
@@ -67,14 +79,6 @@
                   style="display: none"
                 />
                 <span id="navProfileInitial" class="profile-initial"></span>
-              </button>
-            </li>
-            <li class="nav-item">
-              <button
-                id="navSignOutBtn"
-                class="btn-retro btn-retro-ghost btn-retro-sm"
-              >
-                Sign Out
               </button>
             </li>
           </ul>
