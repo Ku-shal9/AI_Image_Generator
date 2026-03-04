@@ -364,6 +364,177 @@
       updateCollapseButton();
     </script>
 
+    <!-- Profile modal initialization -->
+    <script>
+      /**
+       * Profile modal functionality.
+       * Handles opening/closing the modal, profile picture upload,
+       * and password change form submission.
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        // Profile button click handler
+        const profileBtn = document.getElementById("profileBtn");
+        const profileModal = document.getElementById("profileModal");
+        const profileCloseBtn = document.getElementById("profileCloseBtn");
+
+        if (profileBtn && profileModal) {
+          profileBtn.addEventListener("click", function () {
+            profileModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+          });
+        }
+
+        // Close button handler
+        if (profileCloseBtn && profileModal) {
+          profileCloseBtn.addEventListener("click", function () {
+            profileModal.classList.remove("active");
+            document.body.style.overflow = "";
+          });
+        }
+
+        // Close modal when clicking outside
+        if (profileModal) {
+          profileModal.addEventListener("click", function (e) {
+            if (e.target === profileModal) {
+              profileModal.classList.remove("active");
+              document.body.style.overflow = "";
+            }
+          });
+        }
+
+        // Load profile picture on page load
+        loadProfilePicture();
+
+        // Profile picture upload
+        const profilePicInput = document.getElementById("profilePicInput");
+        const profileImg = document.getElementById("profileImg");
+        const profileInitial = document.getElementById("profileInitial");
+        const navProfileImg = document.getElementById("navProfileImg");
+        const navProfileInitial = document.getElementById("navProfileInitial");
+
+        if (profilePicInput) {
+          profilePicInput.addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith("image/")) {
+              const reader = new FileReader();
+              reader.onload = function (ev) {
+                const imgData = ev.target.result;
+
+                // Save to localStorage for sharing across pages
+                localStorage.setItem("pg_profile_pic", imgData);
+
+                // Update modal profile picture
+                if (profileImg) {
+                  profileImg.src = imgData;
+                  profileImg.style.display = "block";
+                }
+                if (profileInitial) {
+                  profileInitial.style.display = "none";
+                }
+
+                // Update navbar profile picture
+                if (navProfileImg) {
+                  navProfileImg.src = imgData;
+                  navProfileImg.style.display = "block";
+                }
+                if (navProfileInitial) {
+                  navProfileInitial.style.display = "none";
+                }
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+        }
+
+        // Update profile info
+        updateProfileInfo();
+      });
+
+      /**
+       * Loads profile picture from localStorage and displays it.
+       */
+      function loadProfilePicture() {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        const navProfileImg = document.getElementById("navProfileImg");
+        const navProfileInitial = document.getElementById("navProfileInitial");
+        const storedProfilePic = localStorage.getItem("pg_profile_pic");
+
+        if (storedProfilePic && navProfileImg) {
+          navProfileImg.src = storedProfilePic;
+          navProfileImg.style.display = "block";
+          if (navProfileInitial) navProfileInitial.style.display = "none";
+        } else if (navProfileInitial) {
+          const initial = user.username
+            ? user.username.charAt(0).toUpperCase()
+            : "?";
+          navProfileInitial.textContent = initial;
+          navProfileInitial.style.display = "flex";
+          if (navProfileImg) navProfileImg.style.display = "none";
+        }
+      }
+
+      /**
+       * Updates the profile modal with current user information.
+       */
+      function updateProfileInfo() {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        // Update username and role
+        const profileUsername = document.getElementById("profileUsername");
+        const profileRole = document.getElementById("profileRole");
+        const profileRateUsed = document.getElementById("profileRateUsed");
+        const profileRateLimit = document.getElementById("profileRateLimit");
+        const profileRateFill = document.getElementById("profileRateFill");
+
+        if (profileUsername) profileUsername.textContent = user.username;
+        if (profileRole) profileRole.textContent = user.role.toUpperCase();
+
+        // Update rate limit display
+        if (user) {
+          const used = user.generationsUsed || 0;
+          const limit = user.rateLimit || 6;
+
+          if (profileRateUsed) profileRateUsed.textContent = used;
+          if (profileRateLimit) profileRateLimit.textContent = limit;
+
+          if (profileRateFill) {
+            const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+            profileRateFill.style.width = pct + "%";
+
+            // Color based on usage
+            if (pct >= 100) {
+              profileRateFill.classList.add("exceeded");
+            } else {
+              profileRateFill.classList.remove("exceeded");
+            }
+          }
+        }
+
+        // Update profile picture
+        const profileImg = document.getElementById("profileImg");
+        const profileInitial = document.getElementById("profileInitial");
+        const storedProfilePic = localStorage.getItem("pg_profile_pic");
+
+        if (storedProfilePic && profileImg) {
+          // Display stored profile picture in modal
+          profileImg.src = storedProfilePic;
+          profileImg.style.display = "block";
+          if (profileInitial) profileInitial.style.display = "none";
+        } else if (profileInitial) {
+          // Show initial letter if no profile picture
+          const initial = user.username
+            ? user.username.charAt(0).toUpperCase()
+            : "?";
+          profileInitial.textContent = initial;
+          profileInitial.style.display = "flex";
+          if (profileImg) profileImg.style.display = "none";
+        }
+      }
+    </script>
+
     <!-- ============================================================
          PROFILE MODAL
          Shows user profile, rate limit, and password change options.
