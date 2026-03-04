@@ -116,13 +116,34 @@ body.light-mode .history-item:hover {
 .navbar {
   background-color: var(--bg-secondary) !important;
   border-bottom: 1px solid var(--border-color);
-  height: var(--navbar-height);
+  min-height: var(--navbar-height);
+  height: auto;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 2001;
   box-shadow: 0 2px 20px rgba(0, 255, 136, 0.1);
+}
+
+.navbar .container,
+.navbar .container-fluid {
+  min-height: var(--navbar-height);
+}
+
+.navbar .navbar-collapse {
+  /* Prevent long menus from overflowing the viewport on mobile */
+  max-height: calc(100vh - var(--navbar-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  position: relative;
+  z-index: 2100;
+}
+
+@supports (height: 100dvh) {
+  .navbar .navbar-collapse {
+    max-height: calc(100dvh - var(--navbar-height));
+  }
 }
 
 .navbar-brand {
@@ -196,6 +217,35 @@ body.light-mode .history-item:hover {
 .home-layout {
   display: flex;
   min-height: calc(100vh - var(--navbar-height));
+}
+
+/* Prefer dynamic viewport units on mobile browsers (iOS/Android) */
+@supports (height: 100dvh) {
+  .page-wrapper {
+    min-height: 100dvh;
+  }
+
+  .home-layout {
+    min-height: calc(100dvh - var(--navbar-height));
+  }
+
+  .sidebar {
+    height: calc(100dvh - var(--navbar-height));
+  }
+}
+
+/* Avoid accidental horizontal scrolling on small screens */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* ============================================================
@@ -925,8 +975,8 @@ body.light-mode .profile-initial {
   inset: 0;
   background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
-  z-index: 2000;
-  display: flex;
+  z-index: 3000;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 1rem;
@@ -936,6 +986,7 @@ body.light-mode .profile-initial {
 }
 
 .modal-overlay.active {
+  display: flex;
   opacity: 1;
   pointer-events: all;
 }
@@ -1606,6 +1657,34 @@ body.light-mode::after {
     padding: 0.5rem 1rem;
   }
 
+  .navbar .navbar-collapse {
+    /* Make the expanded menu feel like a panel */
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+  }
+
+  .navbar-nav {
+    align-items: stretch !important;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .theme-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .navbar-nav .profile-btn {
+    margin: 0 auto;
+  }
+
   .navbar-brand {
     font-size: 0.65rem !important;
   }
@@ -1826,6 +1905,16 @@ body.light-mode::after {
     max-height: 400px;
   }
 
+  /* Make primary actions feel native on small screens */
+  .generated-image-actions a,
+  .generated-image-actions button {
+    max-width: none;
+  }
+
+  .payment-wall {
+    padding: 1.25rem;
+  }
+
   .modal-content {
     max-width: 100%;
     margin: 0.5rem;
@@ -1849,6 +1938,21 @@ body.light-mode::after {
     width: 32px;
     height: 32px;
     font-size: 1rem;
+  }
+}
+
+/* Ultra-small phones: keep navbar controls from overflowing */
+@media (max-width: 420px) {
+  .sidebar-toggle-btn {
+    max-width: 44vw;
+    padding: 0.45rem 0.55rem;
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .navbar-toggler {
+    flex-shrink: 0;
   }
 }
 
@@ -2623,4 +2727,99 @@ body.light-mode::after {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+   RESPONSIVE - TOUCH (mobile + tablet)
+   Fix navbar overlap, keep History in-layout, improve tap targets
+   ============================================================ */
+@media (max-width: 991.98px) {
+  /* Let navbar occupy its own space (no overlap). */
+  .navbar {
+    position: sticky;
+    top: 0;
+  }
+
+  .page-wrapper {
+    padding-top: 0;
+  }
+
+  /* Home layout: keep History inside the layout on mobile/tablet. */
+  .home-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    max-height: 240px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+  }
+
+  .sidebar.collapsed {
+    max-height: 52px;
+    overflow: hidden;
+  }
+
+  /* Use only the navbar History toggle on small screens. */
+  .sidebar-collapse-btn {
+    display: none;
+  }
+
+  .main-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Some later duplicate rules re-hide this; force it on touch breakpoints. */
+  .sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+}
+
+@media (pointer: coarse) {
+  /* Easier tapping on phones/tablets */
+  .navbar-toggler,
+  .sidebar-toggle-btn,
+  .theme-toggle-btn,
+  .profile-btn,
+  .sidebar-collapse-btn,
+  .navbar-nav .nav-link,
+  .btn-retro,
+  .history-item {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .navbar-toggler,
+  .profile-btn,
+  .sidebar-collapse-btn {
+    min-width: 44px;
+  }
+
+  .navbar-toggler {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .sidebar-collapse-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem !important;
+  }
+
+  .btn-retro {
+    padding: 0.75rem 1.25rem;
+  }
 }

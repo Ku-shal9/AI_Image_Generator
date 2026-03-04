@@ -50,12 +50,44 @@
             <li class="nav-item">
               <a class="nav-link active" href="admin.html">Dashboard</a>
             </li>
-            <li class="nav-item ms-lg-2">
+            <!-- Admin label + profile avatar -->
+            <li class="nav-item d-none d-lg-flex align-items-center ms-lg-2">
               <span
-                id="navUserInfo"
                 class="text-accent"
-                style="font-size: 0.8rem; font-weight: 700"
-              ></span>
+                style="font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem"
+                >[ADMIN]</span
+              >
+              <button
+                id="profileBtn"
+                class="profile-btn"
+                aria-label="Open profile"
+              >
+                <img
+                  id="navProfileImg"
+                  src=""
+                  alt="Profile"
+                  class="profile-avatar-small"
+                  style="display: none"
+                />
+                <span id="navProfileInitial" class="profile-initial"></span>
+              </button>
+            </li>
+            <!-- On mobile, just show the avatar button -->
+            <li class="nav-item d-lg-none ms-2">
+              <button
+                id="profileBtnMobile"
+                class="profile-btn"
+                aria-label="Open profile"
+              >
+                <img
+                  id="navProfileImgMobile"
+                  src=""
+                  alt="Profile"
+                  class="profile-avatar-small"
+                  style="display: none"
+                />
+                <span id="navProfileInitialMobile" class="profile-initial"></span>
+              </button>
             </li>
             <li class="nav-item">
               <button id="themeToggleBtn" class="theme-toggle-btn">
@@ -309,5 +341,326 @@
         console.log("[Photo Galli] Form fields initialized");
       });
     </script>
+
+    <!-- Profile modal + avatar behavior (mirrors About page) -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const profileBtn = document.getElementById("profileBtn");
+        const profileBtnMobile = document.getElementById("profileBtnMobile");
+        const profileModal = document.getElementById("profileModal");
+        const profileCloseBtn = document.getElementById("profileCloseBtn");
+
+        const navProfileImg = document.getElementById("navProfileImg");
+        const navProfileInitial = document.getElementById("navProfileInitial");
+        const navProfileImgMobile =
+          document.getElementById("navProfileImgMobile");
+        const navProfileInitialMobile = document.getElementById(
+          "navProfileInitialMobile",
+        );
+
+        const profilePicInput = document.getElementById("profilePicInput");
+        const profileImg = document.getElementById("profileImg");
+        const profileInitial = document.getElementById("profileInitial");
+
+        const profileUsername = document.getElementById("profileUsername");
+        const profileRole = document.getElementById("profileRole");
+        const profileRateUsed = document.getElementById("profileRateUsed");
+        const profileRateLimit = document.getElementById("profileRateLimit");
+        const profileRateFill = document.getElementById("profileRateFill");
+
+        const changePasswordForm = document.getElementById("changePasswordForm");
+        const passwordChangeMsg = document.getElementById("passwordChangeMsg");
+
+        function showPasswordMsg(message, type) {
+          if (!passwordChangeMsg) return;
+          passwordChangeMsg.className = `alert-retro alert-retro-${type} mt-2`;
+          passwordChangeMsg.textContent = message;
+          passwordChangeMsg.classList.remove("d-none");
+        }
+
+        function hidePasswordMsg() {
+          if (!passwordChangeMsg) return;
+          passwordChangeMsg.classList.add("d-none");
+        }
+
+        function applyAvatar(imgEl, initialEl, imgData, initialText) {
+          if (!imgEl || !initialEl) return;
+          if (imgData) {
+            imgEl.src = imgData;
+            imgEl.style.display = "block";
+            initialEl.style.display = "none";
+          } else {
+            imgEl.style.display = "none";
+            initialEl.textContent = initialText;
+            initialEl.style.display = "flex";
+          }
+        }
+
+        function updateProfileUI() {
+          const user = getCurrentUser();
+          if (!user) return;
+
+          const storedProfilePic = getUserProfilePicture(user.id);
+          const initial = user.username
+            ? user.username.charAt(0).toUpperCase()
+            : "?";
+
+          // Navbar avatars
+          applyAvatar(navProfileImg, navProfileInitial, storedProfilePic, initial);
+          applyAvatar(
+            navProfileImgMobile,
+            navProfileInitialMobile,
+            storedProfilePic,
+            initial,
+          );
+
+          // Modal avatar
+          applyAvatar(profileImg, profileInitial, storedProfilePic, initial);
+
+          // Modal text
+          if (profileUsername) profileUsername.textContent = user.username || "";
+          if (profileRole) profileRole.textContent = (user.role || "").toUpperCase();
+
+          // Rate limit
+          const used = user.generationsUsed || 0;
+          const limit = user.rateLimit || 6;
+          const unlimited = limit >= 999;
+
+          if (profileRateUsed) profileRateUsed.textContent = String(used);
+          if (profileRateLimit) {
+            profileRateLimit.textContent = unlimited ? "∞" : String(limit);
+          }
+
+          if (profileRateFill) {
+            const pct = unlimited
+              ? 100
+              : limit > 0
+                ? Math.min(100, (used / limit) * 100)
+                : 0;
+            profileRateFill.style.width = pct + "%";
+            if (!unlimited && pct >= 100) {
+              profileRateFill.classList.add("exceeded");
+            } else {
+              profileRateFill.classList.remove("exceeded");
+            }
+          }
+        }
+
+        function openProfile() {
+          if (profileModal) {
+            profileModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+            updateProfileUI();
+          }
+        }
+
+        if (profileBtn && profileModal) {
+          profileBtn.addEventListener("click", openProfile);
+        }
+        if (profileBtnMobile && profileModal) {
+          profileBtnMobile.addEventListener("click", openProfile);
+        }
+
+        if (profileCloseBtn && profileModal) {
+          profileCloseBtn.addEventListener("click", function () {
+            profileModal.classList.remove("active");
+            document.body.style.overflow = "";
+          });
+        }
+
+        if (profileModal) {
+          profileModal.addEventListener("click", function (e) {
+            if (e.target === profileModal) {
+              profileModal.classList.remove("active");
+              document.body.style.overflow = "";
+              hidePasswordMsg();
+            }
+          });
+        }
+
+        // Close button should also clear messages
+        if (profileCloseBtn && profileModal) {
+          profileCloseBtn.addEventListener("click", function () {
+            hidePasswordMsg();
+          });
+        }
+
+        // Photo upload (shared across pages)
+        if (profilePicInput) {
+          profilePicInput.addEventListener("change", function (e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file || !file.type.startsWith("image/")) return;
+
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+              const imgData = ev.target && ev.target.result ? ev.target.result : "";
+              if (!imgData) return;
+              const user = getCurrentUser();
+              if (user) {
+                saveUserProfilePicture(user.id, imgData);
+              }
+              updateProfileUI();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        // Password change
+        if (changePasswordForm) {
+          changePasswordForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            hidePasswordMsg();
+
+            const oldPasswordEl = document.getElementById("oldPassword");
+            const newPasswordEl = document.getElementById("newPasswordChange");
+            const confirmEl = document.getElementById("confirmPassword");
+
+            const oldPassword = oldPasswordEl ? oldPasswordEl.value : "";
+            const newPassword = newPasswordEl ? newPasswordEl.value : "";
+            const confirmPassword = confirmEl ? confirmEl.value : "";
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+              showPasswordMsg("Please fill in all password fields.", "danger");
+              return;
+            }
+
+            if (newPassword !== confirmPassword) {
+              showPasswordMsg("Passwords do not match.", "danger");
+              return;
+            }
+
+            const result = changeUserPassword(oldPassword, newPassword);
+            if (result.success) {
+              showPasswordMsg(result.message, "success");
+              changePasswordForm.reset();
+              setTimeout(function () {
+                hidePasswordMsg();
+              }, 3000);
+            } else {
+              showPasswordMsg(result.message, "danger");
+            }
+          });
+        }
+
+        // Initial paint (navbar avatar + modal fields when opened)
+        updateProfileUI();
+      });
+    </script>
+
+    <!-- Profile modal markup (reused from About page) -->
+    <div
+      id="profileModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profileTitle"
+    >
+      <div class="modal-content profile-modal-content" style="max-width: 450px">
+        <button
+          id="profileCloseBtn"
+          class="modal-close"
+          aria-label="Close profile"
+        >
+          ✕
+        </button>
+
+        <div class="modal-body" style="padding-top: 2rem">
+          <h2 id="profileTitle" class="profile-title">My Profile</h2>
+
+          <div class="profile-section">
+            <div class="profile-avatar-container">
+              <img
+                id="profileImg"
+                src=""
+                alt="Profile"
+                class="profile-avatar-large"
+                style="display: none"
+              />
+              <div id="profileInitial" class="profile-avatar-placeholder"></div>
+              <label for="profilePicInput" class="profile-pic-upload-btn">
+                📷 Change Photo
+              </label>
+              <input
+                type="file"
+                id="profilePicInput"
+                accept="image/*"
+                style="display: none"
+              />
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-info-row">
+              <span class="profile-label">Username:</span>
+              <span id="profileUsername" class="profile-value"></span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-label">Role:</span>
+              <span id="profileRole" class="profile-value"></span>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h3 class="profile-section-title">Generation Limit</h3>
+            <div class="profile-rate-bar">
+              <div
+                id="profileRateFill"
+                class="profile-rate-fill"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div class="profile-rate-text">
+              <span id="profileRateUsed">0</span> /
+              <span id="profileRateLimit">6</span> generations used
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h3 class="profile-section-title">Change Password</h3>
+            <form id="changePasswordForm" class="profile-form">
+              <div class="form-group">
+                <label class="form-label" for="oldPassword"
+                  >Current Password</label
+                >
+                <input
+                  type="password"
+                  id="oldPassword"
+                  class="form-control-retro"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="newPasswordChange"
+                  >New Password</label
+                >
+                <input
+                  type="password"
+                  id="newPasswordChange"
+                  class="form-control-retro"
+                  required
+                  minlength="4"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="confirmPassword"
+                  >Confirm New Password</label
+                >
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="form-control-retro"
+                  required
+                  minlength="4"
+                />
+              </div>
+              <button type="submit" class="btn-retro btn-retro-primary w-100">
+                🔒 Update Password
+              </button>
+            </form>
+            <div id="passwordChangeMsg" class="d-none mt-2" role="alert"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

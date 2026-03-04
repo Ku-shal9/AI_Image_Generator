@@ -420,8 +420,11 @@
               reader.onload = function (ev) {
                 const imgData = ev.target.result;
 
-                // Save to localStorage for sharing across pages
-                localStorage.setItem("pg_profile_pic", imgData);
+                // Save per-user profile picture
+                const user = getCurrentUser();
+                if (user) {
+                  saveUserProfilePicture(user.id, imgData);
+                }
 
                 // Update modal profile picture
                 if (profileImg) {
@@ -459,7 +462,7 @@
 
         const navProfileImg = document.getElementById("navProfileImg");
         const navProfileInitial = document.getElementById("navProfileInitial");
-        const storedProfilePic = localStorage.getItem("pg_profile_pic");
+        const storedProfilePic = getUserProfilePicture(user.id);
 
         if (storedProfilePic && navProfileImg) {
           navProfileImg.src = storedProfilePic;
@@ -516,7 +519,7 @@
         // Update profile picture
         const profileImg = document.getElementById("profileImg");
         const profileInitial = document.getElementById("profileInitial");
-        const storedProfilePic = localStorage.getItem("pg_profile_pic");
+        const storedProfilePic = getUserProfilePicture(user.id);
 
         if (storedProfilePic && profileImg) {
           // Display stored profile picture in modal

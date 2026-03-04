@@ -286,7 +286,15 @@ function signIn(username, password, role) {
  */
 function signOut() {
   clearSession();
-  window.location.href = "html/signin.html";
+  const path = window.location.pathname || "";
+
+  // If we're already inside /html/, go to the local signin file.
+  if (path.includes("/html/")) {
+    window.location.href = "signin.html";
+  } else {
+    // From root pages like index.html
+    window.location.href = "html/signin.html";
+  }
 }
 
 // ============================================================
@@ -507,7 +515,19 @@ function updateNavbarForUser() {
  */
 function getUserProfilePicture(userId) {
   const key = `pg_profile_pic_${userId}`;
-  return localStorage.getItem(key);
+  const perUser = localStorage.getItem(key);
+  if (perUser) return perUser;
+
+  // Legacy support: older builds stored a single shared key.
+  // Migrate it to the current user the first time we see it.
+  const legacy = localStorage.getItem("pg_profile_pic");
+  if (legacy) {
+    localStorage.setItem(key, legacy);
+    localStorage.removeItem("pg_profile_pic");
+    return legacy;
+  }
+
+  return null;
 }
 
 /**
