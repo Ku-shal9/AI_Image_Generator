@@ -62,6 +62,36 @@ let clearHistoryBtn;
 /** Holds the most recently generated image data */
 let currentImageData = null;
 
+/** localStorage key for optional Hugging Face API token (better-quality images) */
+const HF_TOKEN_KEY = "pg_hf_token";
+
+/** Hugging Face model for text-to-image (FLUX.1-schnell: fast, high quality) */
+const HF_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell";
+
+/**
+ * Hugging Face Inference API endpoint.
+ * Uses the new router endpoint which supports CORS from browsers.
+ * Requires a token with "Make calls to the serverless Inference API" permission.
+ */
+const HF_API_URL = `https://router.huggingface.co/hf-inference/models/${HF_IMAGE_MODEL}`;
+
+/**
+ * Returns the stored Hugging Face API token, or null if not set.
+ * Token is set by the user in Profile → Hugging Face API Key.
+ */
+function getHfToken() {
+  try {
+    const t = localStorage.getItem(HF_TOKEN_KEY);
+    return t && t.trim() ? t.trim() : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Feature flag: Pollinations gen API (requires API key/server-side in 2026).
+// Left here for future use; currently disabled to avoid 401 errors.
+const POLLINATIONS_GEN_ENABLED = false;
+
 // ============================================================
 // RATE LIMIT UI
 // ============================================================
@@ -281,34 +311,149 @@ async function generateImage() {
   const seed = Math.floor(Math.random() * 1000000);
 
   // ============================================================
+  // SERVICE 0: Hugging Face Inference API (primary when API key is set)
+  // Uses FLUX.1-schnell for high-quality, fast generation.
+  // IMPORTANT: Token must have "Make calls to the serverless Inference API"
+  // permission enabled at https://huggingface.co/settings/tokens
+  // (Read-only tokens will NOT work — you must enable Inference permission)
+  // ============================================================
+  const hfToken = getHfToken();
+  if (hfToken && !imgUrl) {
+    try {
+      console.log("[Photo Galli] Trying Hugging Face FLUX (primary)...");
+
+      // Use the new router endpoint which supports browser CORS requests
+      const res = await fetch(HF_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inputs: cleanPrompt,
+          parameters: {
+            width: 1024,
+            height: 1024,
+            num_inference_steps: 4,
+            seed: seed,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
+          imgUrl = URL.createObjectURL(blob);
+          imageSource = "Hugging Face";
+          modelName = "FLUX.1-schnell";
+          console.log("[Photo Galli] Success with Hugging Face!");
+        } else {
+          console.warn(
+            "[Photo Galli] Hugging Face returned empty/non-image blob.",
+          );
+        }
+      } else if (res.status === 401 || res.status === 403) {
+        const errText = await res.text();
+        console.warn(
+          "[Photo Galli] Hugging Face auth error:",
+          res.status,
+          "— Make sure your token has 'Make calls to the serverless Inference API' permission enabled at https://huggingface.co/settings/tokens",
+          errText,
+        );
+      } else if (res.status === 503) {
+        const errText = await res.text();
+        console.warn(
+          "[Photo Galli] Hugging Face model loading (503):",
+          errText,
+          "— Model may be cold-starting, try again in a moment.",
+        );
+      } else {
+        const errText = await res.text();
+        console.warn("[Photo Galli] Hugging Face error:", res.status, errText);
+      }
+    } catch (err) {
+      console.warn(
+        "[Photo Galli] Hugging Face failed:",
+        err.message,
+        "— This may be a CORS issue or network error. Ensure your token has Inference API permission.",
+      );
+    }
+  }
+
+  // ============================================================
+  // SERVICE 0b: Pollinations gen API (New primary, higher-quality)
+  // Unified endpoint: https://gen.pollinations.ai/image/{prompt}
+  // No API key required for basic usage.
+  // ============================================================
+  if (POLLINATIONS_GEN_ENABLED) {
+    try {
+      console.log("[Photo Galli] Trying Pollinations gen API (primary)...");
+
+      const genUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(cleanPrompt)}`;
+
+      const loaded = await new Promise(function (resolve) {
+        const testImg = new Image();
+        testImg.crossOrigin = "anonymous";
+        testImg.onload = function () {
+          if (testImg.width > 0 && testImg.height > 0) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        };
+        testImg.onerror = function () {
+          resolve(false);
+        };
+        setTimeout(function () {
+          resolve(false);
+        }, 60000);
+        testImg.src = genUrl;
+      });
+
+      if (loaded) {
+        imgUrl = genUrl;
+        imageSource = "Pollinations.gen";
+        modelName = "Flux / GPT Image (gen)";
+        console.log("[Photo Galli] Success with Pollinations gen API!");
+      }
+    } catch (err) {
+      console.warn("[Photo Galli] Pollinations gen API failed:", err.message);
+    }
+  }
+
+  // ============================================================
   // SERVICE 1: Puter.js (Primary - Currently Working)
   // Uses puter.ai.txt2img() - provides real AI-generated images
   // Puter.js must be loaded via <script src="https://js.puter.com/v2/"></script>
   // ============================================================
-  try {
-    console.log("[Photo Galli] Trying Puter.ai (primary)...");
+  if (!imgUrl) {
+    try {
+      console.log("[Photo Galli] Trying Puter.ai (fallback)...");
 
-    // Check if puter is available (loaded from CDN)
-    if (typeof puter !== "undefined" && puter.ai && puter.ai.txt2img) {
-      // puter.ai.txt2img returns an HTMLImageElement with the generated image
-      const puterImg = await Promise.race([
-        puter.ai.txt2img(cleanPrompt),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Puter.ai timeout")), 60000),
-        ),
-      ]);
+      // Check if puter is available (loaded from CDN)
+      if (typeof puter !== "undefined" && puter.ai && puter.ai.txt2img) {
+        // puter.ai.txt2img returns an HTMLImageElement with the generated image
+        const puterImg = await Promise.race([
+          puter.ai.txt2img(cleanPrompt),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Puter.ai timeout")), 60000),
+          ),
+        ]);
 
-      if (puterImg && puterImg.src) {
-        imgUrl = puterImg.src;
-        imageSource = "Puter.ai";
-        modelName = "Puter AI";
-        console.log("[Photo Galli] Success with Puter.ai!");
+        if (puterImg && puterImg.src) {
+          imgUrl = puterImg.src;
+          imageSource = "Puter.ai";
+          modelName = "Puter AI";
+          console.log("[Photo Galli] Success with Puter.ai!");
+        }
+      } else {
+        console.warn(
+          "[Photo Galli] Puter.js not loaded or txt2img unavailable.",
+        );
       }
-    } else {
-      console.warn("[Photo Galli] Puter.js not loaded or txt2img unavailable.");
+    } catch (err) {
+      console.warn("[Photo Galli] Puter.ai failed:", err.message);
     }
-  } catch (err) {
-    console.warn("[Photo Galli] Puter.ai failed:", err.message);
   }
 
   // ============================================================

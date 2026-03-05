@@ -453,6 +453,45 @@
 
         // Update profile info
         updateProfileInfo();
+
+        // Hugging Face API key save
+        const hfApiKeySave = document.getElementById("hfApiKeySave");
+        const hfApiKeyInput = document.getElementById("hfApiKeyInput");
+        const hfApiKeyStatus = document.getElementById("hfApiKeyStatus");
+        if (hfApiKeySave && hfApiKeyInput && hfApiKeyStatus) {
+          hfApiKeySave.addEventListener("click", function () {
+            const val = hfApiKeyInput.value.trim();
+            if (!val) {
+              try {
+                localStorage.removeItem("pg_hf_token");
+              } catch (_) {}
+              hfApiKeyStatus.textContent = "Key cleared.";
+              hfApiKeyStatus.className = "mt-2 text-secondary-color";
+              hfApiKeyStatus.classList.remove("d-none");
+              hfApiKeyInput.placeholder = "hf_...";
+              return;
+            }
+            try {
+              localStorage.setItem("pg_hf_token", val);
+              hfApiKeyStatus.textContent =
+                "Saved. FLUX will be used for generation.";
+              hfApiKeyStatus.className = "mt-2 text-accent";
+              hfApiKeyStatus.classList.remove("d-none");
+              hfApiKeyInput.value = "";
+              hfApiKeyInput.placeholder = "Key saved (hf_...)";
+            } catch (e) {
+              hfApiKeyStatus.textContent = "Could not save key.";
+              hfApiKeyStatus.className = "mt-2 text-danger";
+              hfApiKeyStatus.classList.remove("d-none");
+            }
+          });
+          // Show placeholder if key already set
+          try {
+            if (localStorage.getItem("pg_hf_token")) {
+              hfApiKeyInput.placeholder = "Key saved (enter new to replace)";
+            }
+          } catch (_) {}
+        }
       });
 
       /**
@@ -613,6 +652,60 @@
               <span id="profileRateUsed">0</span> /
               <span id="profileRateLimit">6</span> generations used
             </div>
+          </div>
+
+          <!-- Hugging Face API Key (optional, for better image quality) -->
+          <div class="profile-section">
+            <h3 class="profile-section-title">Hugging Face API (optional)</h3>
+            <p
+              style="
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-bottom: 0.75rem;
+              "
+            >
+              Add a token to use FLUX for higher-quality images. Get a free
+              token at
+              <a
+                href="https://huggingface.co/settings/tokens"
+                target="_blank"
+                rel="noopener"
+                style="color: var(--accent-cyan)"
+                >huggingface.co/settings/tokens</a
+              >.
+              <br />
+              <strong style="color: var(--warning, #f59e0b)"
+                >⚠ Important:</strong
+              >
+              When creating the token, select
+              <strong>token type: "Fine-grained"</strong> and enable
+              <strong>"Make calls to the serverless Inference API"</strong>
+              under Inference permissions. A plain read-only token will
+              <em>not</em> work.
+            </p>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+              <input
+                type="password"
+                id="hfApiKeyInput"
+                class="form-control-retro"
+                placeholder="hf_..."
+                autocomplete="off"
+                style="flex: 1; min-width: 180px"
+              />
+              <button
+                type="button"
+                id="hfApiKeySave"
+                class="btn-retro btn-retro-cyan btn-retro-sm"
+              >
+                Save
+              </button>
+            </div>
+            <p
+              id="hfApiKeyStatus"
+              class="d-none mt-2"
+              style="font-size: 0.8rem"
+              role="status"
+            ></p>
           </div>
 
           <!-- Change Password Section -->
