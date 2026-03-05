@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pricing - Photo Galli</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Custom retro styles -->
+    <link rel="stylesheet" href="../css/style.css" />
+    <!-- Stripe.js (loaded for future payment integration) -->
+    <script src="https://js.stripe.com/v3/" defer></script>
+    <style>
+      /* ============================================================
+         PRICING PAGE STYLES
+         ============================================================ */
+
+      .pricing-hero {
+        text-align: center;
+        padding: 3rem 1rem 2rem;
+      }
+
+      .pricing-hero-title {
+        font-family: "Press Start 2P", monospace;
+        font-size: clamp(1rem, 3vw, 1.6rem);
+        color: var(--accent-primary);
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+      }
+
+      .pricing-hero-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        max-width: 520px;
+        margin: 0 auto 0.5rem;
+      }
+
+      .pricing-badge {
+        display: inline-block;
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid var(--accent-primary);
+        color: var(--accent-primary);
+        font-size: 0.72rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        font-family: "Courier Prime", monospace;
+        letter-spacing: 1px;
+      }
+
+      /* ---- Plan Cards Grid ---- */
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1rem 3rem;
+      }
+
+      /* ---- Individual Plan Card ---- */
+      .plan-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition:
+          transform 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        overflow: hidden;
+      }
+
+      .plan-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--plan-accent, var(--border-color));
+        transition: opacity 0.2s ease;
+      }
+
+      .plan-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--plan-accent, var(--accent-primary));
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Popular badge */
+      .plan-popular-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--accent-secondary);
+        color: #fff;
+        font-size: 0.6rem;
+        font-family: "Press Start 2P", monospace;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Plan accent colors */
+      .plan-card.plan-free {
+        --plan-accent: var(--text-muted);
+      }
+      .plan-card.plan-starter {
+        --plan-accent: var(--accent-cyan);
+      }
+      .plan-card.plan-pro {
+        --plan-accent: var(--accent-primary);
+      }
+      .plan-card.plan-unlimited {
+        --plan-accent: var(--accent-tertiary);
+      }
+
+      .plan-card.plan-pro {
+        border-color: rgba(0, 255, 136, 0.4);
+        box-shadow: 0 0 24px rgba(0, 255, 136, 0.08);
+      }
+
+      /* Plan name */
+      .plan-name {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.75rem;
+        color: var(--plan-accent, var(--text-secondary));
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+      }
+
+      /* Price display */
+      .plan-price {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .plan-price-currency {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        font-family: "Courier Prime", monospace;
+      }
+
+      .plan-price-amount {
+        font-family: "Press Start 2P", monospace;
+        font-size: clamp(1.4rem, 4vw, 2rem);
+        color: var(--text-primary);
+        line-height: 1;
+      }
+
+      .plan-price-period {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-family: "Courier Prime", monospace;
+      }
+
+      .plan-price-free {
+        font-family: "Press Start 2P", monospace;
+        font-size: 1.4rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+      }
+
+      .plan-tagline {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        min-height: 2.4em;
+      }
+
+      /* Divider */
+      .plan-divider {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 0 0 1.25rem;
+      }
+
+      /* Feature list */
+      .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem;
+        flex: 1;
+      }
+
+      .plan-features li {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        padding: 0.35rem 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .plan-features li:last-child {
+        border-bottom: none;
+      }
+
+      .plan-features li .feat-icon {
+        color: var(--plan-accent, var(--accent-primary));
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .plan-features li.feat-disabled {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+
+      .plan-features li.feat-disabled .feat-icon {
+        color: var(--text-muted);
+      }
+
+      /* CTA button */
+      .plan-cta {
+        margin-top: auto;
+      }
+
+      /* Generation count highlight */
+      .plan-gen-count {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.65rem;
+        color: var(--plan-accent, var(--accent-primary));
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--plan-accent, var(--border-color));
+        border-radius: 4px;
+        padding: 0.4rem 0.6rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        letter-spacing: 0.5px;
+      }
+
+      /* ---- Stripe trust badge ---- */
+      .stripe-trust {
+        text-align: center;
+        padding: 1.5rem 1rem 3rem;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+      }
+
+      .stripe-trust .stripe-logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 0.75rem;
+        font-family: "Courier Prime", monospace;
+        color: var(--text-secondary);
+      }
+
+      .stripe-trust .stripe-logo svg {
+        width: 40px;
+        height: 16px;
+      }
+
+      /* ---- FAQ Section ---- */
+      .pricing-faq {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 1rem 4rem;
+      }
+
+      .pricing-faq-title {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.85rem;
+        color: var(--accent-primary);
+        text-align: center;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+      }
+
+      .faq-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+      }
+
+      .faq-question {
+        width: 100%;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-family: "Courier Prime", monospace;
+        font-size: 0.9rem;
+        padding: 1rem 1.25rem;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        transition: background 0.15s ease;
+      }
+
+      .faq-question:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .faq-question .faq-icon {
+        color: var(--accent-primary);
+        font-size: 1rem;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+      }
+
+      .faq-question.open .faq-icon {
+        transform: rotate(45deg);
+      }
+
+      .faq-answer {
+        display: none;
+        padding: 0 1.25rem 1rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .faq-answer.open {
+        display: block;
+      }
+
+      /* ---- Payment Modal ---- */
+      .payment-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .payment-modal-overlay.active {
+        display: flex;
+      }
+
+      .payment-modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 2rem;
+        width: 100%;
+        max-width: 480px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+
+      .payment-modal-title {
+        font-family: "Press Start 2P", monospace;
+        font-size: 0.85rem;
+        color: var(--accent-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .payment-modal-plan {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .payment-modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0.25rem;
+        transition: color 0.15s;
+      }
+
+      .payment-modal-close:hover {
+        color: var(--text-primary);
+      }
+
+      /* Stripe card element container */
+      #stripe-card-element {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s ease;
+      }
+
+      #stripe-card-element.StripeElement--focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.15);
+      }
+
+      #stripe-card-element.StripeElement--invalid {
+        border-color: var(--danger);
+      }
+
+      #stripe-card-errors {
+        color: var(--danger);
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+        min-height: 1.2em;
+      }
+
+      .payment-summary {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
+
+      .payment-summary .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.2rem 0;
+      }
+
+      .payment-summary .summary-total {
+        border-top: 1px solid var(--border-color);
+        margin-top: 0.4rem;
+        padding-top: 0.4rem;
+        color: var(--text-primary);
+        font-weight: bold;
+      }
+
+      /* ---- Light mode overrides ---- */
+      body.light-mode .plan-card {
+        background: var(--light-bg-card);
+        border-color: var(--light-border-color);
+      }
+
+      body.light-mode .plan-card:hover {
+        border-color: var(--plan-accent, var(--accent-primary));
+      }
+
+      body.light-mode .faq-item {
+        background: var(--light-bg-card);
+        border-color: var(--light-border-color);
+      }
+
+      body.light-mode .payment-modal {
+        background: var(--light-bg-card);
+        border-color: var(--light-border-color);
+      }
+
+      body.light-mode #stripe-card-element {
+        background: var(--light-bg-secondary);
+        border-color: var(--light-border-color);
+      }
+
+      /* ---- Responsive ---- */
+      @media (max-width: 576px) {
+        .pricing-grid {
+          grid-template-columns: 1fr;
+          max-width: 400px;
+        }
+
+        .plan-card {
+          padding: 1.5rem 1.25rem;
+        }
+      }
+
+      @media (min-width: 768px) and (max-width: 991px) {
+        .pricing-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================================================
+         NAVBAR
+         ============================================================ -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid px-3">
+        <a class="navbar-brand" href="../index.html">Photo<span>Galli</span></a>
+
+        <div class="d-flex align-items-center gap-2 d-lg-none">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="photos.html">Photos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="pricing.html">💳 Pricing</a>
+            </li>
+            <li class="nav-item">
+              <button id="themeToggleBtn" class="theme-toggle-btn">
+                ☀️ Light
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                id="navSignOutBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+              >
+                🚪 Sign Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         PAGE CONTENT
+         ============================================================ -->
+    <div class="page-wrapper" style="padding-top: var(--navbar-height)">
+      <!-- Hero -->
+      <div class="pricing-hero">
+        <div class="pricing-badge">✦ SIMPLE, TRANSPARENT PRICING</div>
+        <h1 class="pricing-hero-title">Choose Your Plan</h1>
+        <p class="pricing-hero-subtitle">
+          Generate stunning AI images with FLUX.1-schnell. Start free, upgrade
+          when you need more.
+        </p>
+      </div>
+
+      <!-- Plan Cards -->
+      <div class="pricing-grid">
+        <!-- FREE PLAN -->
+        <div class="plan-card plan-free">
+          <div class="plan-name">Free</div>
+          <div class="plan-price-free">$0</div>
+          <div class="plan-tagline">Perfect for trying out Photo Galli</div>
+          <div class="plan-gen-count">6 GENERATIONS</div>
+          <hr class="plan-divider" />
+          <ul class="plan-features">
+            <li><span class="feat-icon">✓</span> 6 AI image generations</li>
+            <li><span class="feat-icon">✓</span> FLUX.1-schnell model</li>
+            <li><span class="feat-icon">✓</span> 1024×1024 resolution</li>
+            <li><span class="feat-icon">✓</span> Download images</li>
+            <li><span class="feat-icon">✓</span> Prompt history</li>
+            <li class="feat-disabled">
+              <span class="feat-icon">✗</span> Gallery storage
+            </li>
+            <li class="feat-disabled">
+              <span class="feat-icon">✗</span> Priority generation
+            </li>
+          </ul>
+          <div class="plan-cta">
+            <button
+              class="btn-retro btn-retro-ghost btn-retro-full"
+              onclick="handlePlanSelect('free', 0)"
+            >
+              Current Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- STARTER PLAN -->
+        <div class="plan-card plan-starter">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>
+            <span class="plan-price-amount">4.99</span>
+            <span class="plan-price-period">/mo</span>
+          </div>
+          <div class="plan-tagline">For casual creators and hobbyists</div>
+          <div class="plan-gen-count">30 GENERATIONS / MO</div>
+          <hr class="plan-divider" />
+          <ul class="plan-features">
+            <li><span class="feat-icon">✓</span> 30 AI image generations/mo</li>
+            <li><span class="feat-icon">✓</span> FLUX.1-schnell model</li>
+            <li><span class="feat-icon">✓</span> 1024×1024 resolution</li>
+            <li><span class="feat-icon">✓</span> Download images</li>
+            <li><span class="feat-icon">✓</span> Prompt history</li>
+            <li>
+              <span class="feat-icon">✓</span> Gallery storage (50 images)
+            </li>
+            <li class="feat-disabled">
+              <span class="feat-icon">✗</span> Priority generation
+            </li>
+          </ul>
+          <div class="plan-cta">
+            <button
+              class="btn-retro btn-retro-cyan btn-retro-full"
+              onclick="handlePlanSelect('starter', 4.99)"
+            >
+              ▶ Get Starter
+            </button>
+          </div>
+        </div>
+
+        <!-- PRO PLAN (Popular) -->
+        <div class="plan-card plan-pro">
+          <div class="plan-popular-badge">POPULAR</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>
+            <span class="plan-price-amount">9.99</span>
+            <span class="plan-price-period">/mo</span>
+          </div>
+          <div class="plan-tagline">For serious creators and small teams</div>
+          <div class="plan-gen-count">100 GENERATIONS / MO</div>
+          <hr class="plan-divider" />
+          <ul class="plan-features">
+            <li>
+              <span class="feat-icon">✓</span> 100 AI image generations/mo
+            </li>
+            <li><span class="feat-icon">✓</span> FLUX.1-schnell model</li>
+            <li><span class="feat-icon">✓</span> 1024×1024 resolution</li>
+            <li><span class="feat-icon">✓</span> Download images</li>
+            <li><span class="feat-icon">✓</span> Full prompt history</li>
+            <li>
+              <span class="feat-icon">✓</span> Gallery storage (unlimited)
+            </li>
+            <li><span class="feat-icon">✓</span> Priority generation queue</li>
+          </ul>
+          <div class="plan-cta">
+            <button
+              class="btn-retro btn-retro-primary btn-retro-full"
+              onclick="handlePlanSelect('pro', 9.99)"
+            >
+              ✦ Get Pro
+            </button>
+          </div>
+        </div>
+
+        <!-- UNLIMITED PLAN -->
+        <div class="plan-card plan-unlimited">
+          <div class="plan-name">Unlimited</div>
+          <div class="plan-price">
+            <span class="plan-price-currency">$</span>
+            <span class="plan-price-amount">19.99</span>
+            <span class="plan-price-period">/mo</span>
+          </div>
+          <div class="plan-tagline">For power users and agencies</div>
+          <div class="plan-gen-count">∞ UNLIMITED GENERATIONS</div>
+          <hr class="plan-divider" />
+          <ul class="plan-features">
+            <li><span class="feat-icon">✓</span> Unlimited AI generations</li>
+            <li><span class="feat-icon">✓</span> FLUX.1-schnell model</li>
+            <li><span class="feat-icon">✓</span> 1024×1024 resolution</li>
+            <li><span class="feat-icon">✓</span> Download images</li>
+            <li><span class="feat-icon">✓</span> Full prompt history</li>
+            <li>
+              <span class="feat-icon">✓</span> Gallery storage (unlimited)
+            </li>
+            <li><span class="feat-icon">✓</span> Priority generation queue</li>
+          </ul>
+          <div class="plan-cta">
+            <button
+              class="btn-retro btn-retro-full"
+              style="
+                background: linear-gradient(
+                  135deg,
+                  var(--accent-tertiary),
+                  var(--accent-primary)
+                );
+                color: #000;
+                border-color: transparent;
+              "
+              onclick="handlePlanSelect('unlimited', 19.99)"
+            >
+              ⚡ Go Unlimited
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stripe Trust Badge -->
+      <div class="stripe-trust">
+        <div class="stripe-logo">
+          <!-- Stripe wordmark SVG -->
+          <svg
+            viewBox="0 0 60 25"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="Stripe"
+          >
+            <path
+              d="M5.45 9.75c0-.69.57-1.02 1.5-1.02 1.35 0 3.06.42 4.41 1.17V6.18C9.99 5.55 8.64 5.25 7.29 5.25 4.08 5.25 2 6.9 2 9.93c0 4.68 6.45 3.93 6.45 5.94 0 .81-.69 1.08-1.68 1.08-1.44 0-3.3-.6-4.77-1.41v3.78c1.62.69 3.27 1.02 4.77 1.02 3.27 0 5.52-1.62 5.52-4.68-.03-5.04-6.84-4.14-6.84-5.91zm13.5-4.5l-3.9.84v2.97h-1.98v3.18h1.98v6.12c0 2.55 1.2 3.63 3.75 3.63.99 0 2.13-.21 2.94-.57v-3.06c-.54.21-1.2.33-1.74.33-.87 0-1.05-.27-1.05-1.14V12.24h2.79V9.06h-2.79V5.25zm7.5 4.5c-1.02 0-1.68.48-2.04 1.2V9.06h-3.78v12.18h3.78v-6.45c0-1.44.63-2.1 1.89-2.1.42 0 .87.06 1.29.18V9.12c-.36-.09-.75-.12-1.14-.12zm5.25-.69c-3.57 0-5.7 2.4-5.7 6.33 0 4.2 2.28 6.3 5.97 6.3 1.71 0 3.03-.39 4.08-1.08v-3.12c-.99.63-2.1.99-3.21.99-1.44 0-2.34-.57-2.61-1.8h6.45c.03-.3.06-.75.06-1.08 0-3.78-1.89-6.54-5.04-6.54zm-2.1 4.98c.21-1.26.9-1.98 2.04-1.98 1.11 0 1.77.72 1.92 1.98h-3.96zm11.1-4.98c-1.02 0-1.68.48-2.04 1.2V9.06h-3.78v12.18h3.78v-6.45c0-1.44.63-2.1 1.89-2.1.42 0 .87.06 1.29.18V9.12c-.36-.09-.75-.12-1.14-.12z"
+              fill="#6772E5"
+            />
+          </svg>
+          Secured by Stripe
+        </div>
+        <p>
+          All payments are processed securely via Stripe. We never store your
+          card details.
+        </p>
+        <p style="margin-top: 0.25rem">
+          🔒 256-bit SSL encryption &nbsp;·&nbsp; PCI DSS compliant
+          &nbsp;·&nbsp; Cancel anytime
+        </p>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="pricing-faq">
+        <h2 class="pricing-faq-title">FAQ</h2>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            What is a "generation"?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            One generation = one AI image created from your text prompt. Each
+            time you click "Generate Image" and an image is produced, that
+            counts as one generation.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Do unused generations roll over?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            No — generations reset at the start of each billing cycle. We
+            recommend choosing a plan that matches your typical monthly usage.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Can I cancel my subscription?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes, you can cancel at any time from your profile settings. You'll
+            retain access to your plan until the end of the current billing
+            period.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            What AI model is used?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            All plans use <strong>FLUX.1-schnell</strong> by Black Forest Labs —
+            a state-of-the-art text-to-image model that generates high-quality
+            1024×1024 images in seconds.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Is there a free trial?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes! The Free plan gives you 6 generations at no cost. Guest mode
+            gives you 2 generations without even creating an account. No credit
+            card required.
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end page-wrapper -->
+
+    <!-- ============================================================
+         PAYMENT MODAL (Stripe Checkout)
+         ============================================================ -->
+    <div
+      id="paymentModalOverlay"
+      class="payment-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="paymentModalTitle"
+    >
+      <div class="payment-modal">
+        <button
+          class="payment-modal-close"
+          onclick="closePaymentModal()"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+
+        <div class="payment-modal-title" id="paymentModalTitle">
+          Complete Purchase
+        </div>
+        <div class="payment-modal-plan" id="paymentModalPlan">
+          Plan: Pro — $9.99/month
+        </div>
+
+        <!-- Payment summary -->
+        <div class="payment-summary">
+          <div class="summary-row">
+            <span id="summaryPlanName">Pro Plan</span>
+            <span id="summaryPlanPrice">$9.99</span>
+          </div>
+          <div class="summary-row">
+            <span>Billing</span>
+            <span>Monthly</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span>Total today</span>
+            <span id="summaryTotal">$9.99</span>
+          </div>
+        </div>
+
+        <!-- Stripe Card Element -->
+        <div id="stripe-card-element"></div>
+        <div id="stripe-card-errors" role="alert"></div>
+
+        <!-- Submit button -->
+        <button
+          id="paymentSubmitBtn"
+          class="btn-retro btn-retro-primary btn-retro-full"
+          onclick="handlePaymentSubmit()"
+        >
+          🔒 Pay Now
+        </button>
+
+        <p
+          style="
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.75rem;
+          "
+        >
+          Secured by Stripe · Cancel anytime
+        </p>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Auth module -->
+    <script src="../js/auth.js"></script>
+
+    <!-- Pricing page logic -->
+    <script>
+      /**
+       * Pricing page script.
+       * Handles plan selection, Stripe payment modal, and FAQ accordion.
+       *
+       * NOTE: Replace STRIPE_PUBLISHABLE_KEY with your actual Stripe publishable key.
+       * Get it from: https://dashboard.stripe.com/apikeys
+       */
+
+      // ---- Stripe publishable key (replace with your real key) ----
+      const STRIPE_PUBLISHABLE_KEY = "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE";
+
+      let stripe = null;
+      let stripeCardElement = null;
+      let selectedPlan = null;
+      let selectedPrice = 0;
+
+      // Initialize Stripe when available
+      function initStripe() {
+        if (
+          typeof Stripe !== "undefined" &&
+          STRIPE_PUBLISHABLE_KEY !== "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
+        ) {
+          stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+          const elements = stripe.elements({
+            appearance: {
+              theme: "night",
+              variables: {
+                colorPrimary: "#00ff88",
+                colorBackground: "#12121a",
+                colorText: "#e8e8f0",
+                colorDanger: "#ff3366",
+                fontFamily: "Courier Prime, Courier New, monospace",
+                borderRadius: "6px",
+              },
+            },
+          });
+          stripeCardElement = elements.create("card", {
+            style: {
+              base: {
+                color: "#e8e8f0",
+                fontFamily: "Courier Prime, monospace",
+                fontSize: "14px",
+                "::placeholder": { color: "#606080" },
+              },
+              invalid: { color: "#ff3366" },
+            },
+          });
+          stripeCardElement.mount("#stripe-card-element");
+          stripeCardElement.on("change", function (event) {
+            const errorEl = document.getElementById("stripe-card-errors");
+            errorEl.textContent = event.error ? event.error.message : "";
+          });
+        } else {
+          // Stripe not configured — show demo card INPUTS (simulation)
+          const cardEl = document.getElementById("stripe-card-element");
+          if (cardEl) {
+            cardEl.innerHTML = `
+              <div style="color: var(--text-secondary); font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                  <label style="font-size: 0.75rem; color: var(--text-muted);">Card number (test only)</label>
+                  <input
+                    id="demoCardNumber"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="cc-number"
+                    placeholder="4242 4242 4242 4242"
+                    style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 0.45rem 0.6rem; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; width: 100%;"
+                  />
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">Expiry (DD/MM/YYYY)</label>
+                    <input
+                      id="demoCardExpiry"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="cc-exp"
+                      placeholder="31/12/2030"
+                      style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 0.45rem 0.6rem; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; width: 100%;"
+                    />
+                  </div>
+                  <div style="flex: 0 0 80px; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">CVC</label>
+                    <input
+                      id="demoCardCvc"
+                      type="password"
+                      inputmode="numeric"
+                      autocomplete="cc-csc"
+                      placeholder="123"
+                      style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 0.45rem 0.6rem; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; width: 100%;"
+                    />
+                  </div>
+                </div>
+                <div style="color: var(--warning); font-size: 0.72rem; margin-top: 0.2rem;">
+                  ⚠ Demo mode only — no real money is charged. Use Stripe test cards like <code>4242 4242 4242 4242</code>.
+                </div>
+              </div>
+            `;
+          }
+        }
+      }
+
+      /**
+       * Handles plan selection — opens payment modal.
+       * @param {string} planName
+       * @param {number} price
+       */
+      function handlePlanSelect(planName, price) {
+        if (price === 0) {
+          // Free plan — just redirect to home
+          window.location.href = "../index.html";
+          return;
+        }
+
+        // Check if user is logged in
+        if (!isLoggedIn() && !isGuest()) {
+          if (confirm("You need an account to subscribe. Create one now?")) {
+            window.location.href = "signin.html";
+          }
+          return;
+        }
+
+        selectedPlan = planName;
+        selectedPrice = price;
+
+        // Update modal content
+        const planLabel = planName.charAt(0).toUpperCase() + planName.slice(1);
+        document.getElementById("paymentModalPlan").textContent =
+          `Plan: ${planLabel} — $${price.toFixed(2)}/month`;
+        document.getElementById("summaryPlanName").textContent =
+          `${planLabel} Plan`;
+        document.getElementById("summaryPlanPrice").textContent =
+          `$${price.toFixed(2)}`;
+        document.getElementById("summaryTotal").textContent =
+          `$${price.toFixed(2)}`;
+
+        // Open modal
+        document.getElementById("paymentModalOverlay").classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        // Initialize Stripe card element
+        initStripe();
+      }
+
+      /**
+       * Closes the payment modal.
+       */
+      function closePaymentModal() {
+        document
+          .getElementById("paymentModalOverlay")
+          .classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      /**
+       * Handles payment form submission.
+       * In production: create a PaymentIntent on your server and confirm with Stripe.js.
+       */
+      async function handlePaymentSubmit() {
+        const submitBtn = document.getElementById("paymentSubmitBtn");
+        const errorEl = document.getElementById("stripe-card-errors");
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "⏳ Processing...";
+        errorEl.textContent = "";
+
+        // ---- DEMO MODE (no real Stripe key configured) ----
+        if (!stripe || !stripeCardElement) {
+          // Basic front-end validation to simulate real card entry
+          const cardNumberInput = document.getElementById("demoCardNumber");
+          const expiryInput = document.getElementById("demoCardExpiry");
+          const cvcInput = document.getElementById("demoCardCvc");
+
+          if (cardNumberInput && expiryInput && cvcInput) {
+            const rawNumber = cardNumberInput.value.replace(/\s+/g, "");
+            const expiry = expiryInput.value.trim();
+            const cvc = cvcInput.value.trim();
+
+            const cardNumberValid = /^\d{16}$/.test(rawNumber);
+            const cvcValid = /^\d{3,4}$/.test(cvc);
+
+            let expiryValid = false;
+            const match = expiry.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (match) {
+              const dd = parseInt(match[1], 10);
+              const mm = parseInt(match[2], 10);
+              const yyyy = parseInt(match[3], 10);
+              if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+                const enteredDate = new Date(yyyy, mm - 1, dd, 23, 59, 59, 999);
+                const now = new Date();
+                if (enteredDate > now) {
+                  expiryValid = true;
+                }
+              }
+            }
+
+            if (!cardNumberValid || !expiryValid || !cvcValid) {
+              errorEl.textContent =
+                "Please enter a valid test card number, expiry (DD/MM/YYYY), and CVC.";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "🔒 Pay Now";
+              return;
+            }
+          }
+
+          // Simulate payment processing
+          await new Promise((r) => setTimeout(r, 1500));
+
+          // In demo mode: update user plan in localStorage
+          const user = getCurrentUser();
+          if (user) {
+            const planLimits = { starter: 30, pro: 100, unlimited: 9999 };
+            updateUser(user.id, {
+              plan: selectedPlan,
+              rateLimit: planLimits[selectedPlan] || 30,
+              generationsUsed: 0, // Reset on upgrade
+            });
+          }
+
+          closePaymentModal();
+          submitBtn.disabled = false;
+          submitBtn.textContent = "🔒 Pay Now";
+
+          // Show success message
+          showPaymentSuccess(selectedPlan, selectedPrice);
+          return;
+        }
+
+        // ---- REAL STRIPE PAYMENT ----
+        // TODO: Replace with your server endpoint that creates a PaymentIntent
+        // const response = await fetch('/create-payment-intent', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({ plan: selectedPlan, amount: Math.round(selectedPrice * 100) })
+        // });
+        // const { clientSecret } = await response.json();
+        //
+        // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        //   payment_method: { card: stripeCardElement }
+        // });
+        //
+        // if (error) {
+        //   errorEl.textContent = error.message;
+        // } else if (paymentIntent.status === 'succeeded') {
+        //   showPaymentSuccess(selectedPlan, selectedPrice);
+        //   closePaymentModal();
+        // }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "🔒 Pay Now";
+      }
+
+      /**
+       * Shows a success notification after payment.
+       * @param {string} plan
+       * @param {number} price
+       */
+      function showPaymentSuccess(plan, price) {
+        const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+        const msg = document.createElement("div");
+        msg.style.cssText = `
+          position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+          background: var(--bg-card); border: 1px solid var(--accent-primary);
+          border-radius: 8px; padding: 1.25rem 1.5rem;
+          box-shadow: 0 8px 32px rgba(0,255,136,0.2);
+          font-family: Courier Prime, monospace; max-width: 320px;
+          animation: slideInRight 0.3s ease;
+        `;
+        msg.innerHTML = `
+          <div style="color: var(--accent-primary); font-family: 'Press Start 2P', monospace; font-size: 0.7rem; margin-bottom: 0.5rem;">✓ PAYMENT SUCCESSFUL</div>
+          <div style="color: var(--text-secondary); font-size: 0.82rem;">You're now on the <strong style="color: var(--text-primary);">${planLabel}</strong> plan!</div>
+          <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.4rem;">Redirecting to home...</div>
+        `;
+        document.body.appendChild(msg);
+        setTimeout(() => {
+          window.location.href = "../index.html";
+        }, 2500);
+      }
+
+      /**
+       * Toggles FAQ accordion items.
+       * @param {HTMLElement} btn
+       */
+      function toggleFaq(btn) {
+        const answer = btn.nextElementSibling;
+        const isOpen = answer.classList.contains("open");
+
+        // Close all
+        document
+          .querySelectorAll(".faq-answer")
+          .forEach((a) => a.classList.remove("open"));
+        document
+          .querySelectorAll(".faq-question")
+          .forEach((b) => b.classList.remove("open"));
+
+        // Open clicked if it was closed
+        if (!isOpen) {
+          answer.classList.add("open");
+          btn.classList.add("open");
+        }
+      }
+
+      // ---- Init ----
+      loadTheme();
+
+      const themeBtn = document.getElementById("themeToggleBtn");
+      if (themeBtn) {
+        const isLight = document.body.classList.contains("light-mode");
+        themeBtn.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+        themeBtn.addEventListener("click", toggleTheme);
+      }
+
+      const signOutBtn = document.getElementById("navSignOutBtn");
+      if (signOutBtn) {
+        signOutBtn.addEventListener("click", signOut);
+      }
+
+      // Close modal on overlay click
+      document
+        .getElementById("paymentModalOverlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closePaymentModal();
+        });
+
+      // Close modal on Escape
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closePaymentModal();
+      });
+
+      // Highlight current plan if user is logged in
+      document.addEventListener("DOMContentLoaded", function () {
+        const user = getCurrentUser();
+        if (user && user.plan) {
+          const planCards = document.querySelectorAll(".plan-card");
+          planCards.forEach((card) => {
+            if (card.classList.contains("plan-" + user.plan)) {
+              const cta = card.querySelector(".plan-cta button");
+              if (cta) {
+                cta.textContent = "✓ Current Plan";
+                cta.disabled = true;
+              }
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

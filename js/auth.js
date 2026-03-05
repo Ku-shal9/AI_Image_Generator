@@ -4,7 +4,14 @@
  *
  * Roles:
  *   - admin: pre-seeded, can manage users, view all history, set rate limits
- *   - user: must sign in before generating images; limited to 6 generations
+ *   - user: registered user; plan determines generation limit
+ *   - guest: temporary session; limited to GUEST_FREE_LIMIT generations before upgrade required
+ *
+ * Plans:
+ *   - free / guest: 2 generations
+ *   - starter: 30 generations / month
+ *   - pro: 100 generations / month
+ *   - unlimited: no limit
  */
 
 // ============================================================
@@ -16,10 +23,75 @@ const STORAGE_KEYS = {
   USERS: "pg_users",
   SESSION: "pg_session",
   THEME: "pg_theme",
+  GUEST_GENS: "pg_guest_gens",
 };
 
-/** Default rate limit for new users (number of free generations) */
+/** Default rate limit for new registered users (free plan) */
 const DEFAULT_RATE_LIMIT = 6;
+
+/** Guest users get this many free generations before upgrade prompt */
+const GUEST_FREE_LIMIT = 2;
+
+/**
+ * Plan definitions: name, generation limit, price display.
+ * Used by the pricing page and rate-limit checks.
+ */
+const PLANS = {
+  guest: { name: "Guest", limit: 2, price: 0 },
+  free: { name: "Free", limit: 6, price: 0 },
+  starter: { name: "Starter", limit: 30, price: 4.99 },
+  pro: { name: "Pro", limit: 100, price: 9.99 },
+  unlimited: { name: "Unlimited", limit: 9999, price: 19.99 },
+};
+
+// ============================================================
+// GUEST MODE
+// ============================================================
+
+/**
+ * Starts a guest session (no account required).
+ * Guest gets GUEST_FREE_LIMIT free generations.
+ */
+function startGuestSession() {
+  const guestSession = {
+    id: "guest-" + Date.now(),
+    username: "Guest",
+    role: "guest",
+    loginTime: Date.now(),
+  };
+  localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(guestSession));
+  // Reset guest generation count
+  localStorage.setItem(STORAGE_KEYS.GUEST_GENS, "0");
+}
+
+/**
+ * Checks if the current session is a guest session.
+ * @returns {boolean}
+ */
+function isGuest() {
+  const session = getSession();
+  return session && session.role === "guest";
+}
+
+/**
+ * Gets the number of generations used in the current guest session.
+ * @returns {number}
+ */
+function getGuestGenerationsUsed() {
+  try {
+    return parseInt(localStorage.getItem(STORAGE_KEYS.GUEST_GENS) || "0", 10);
+  } catch (_) {
+    return 0;
+  }
+}
+
+/**
+ * Increments the guest generation counter.
+ */
+function incrementGuestGenerationCount() {
+  const current = getGuestGenerationsUsed();
+  localStorage.setItem(STORAGE_KEYS.GUEST_GENS, String(current + 1));
+}
 
 // ============================================================
 // INITIAL DATA SETUP
@@ -302,15 +374,27 @@ function signOut() {
 // ============================================================
 
 /**
- * Checks if the current user has remaining generations.
- * @returns {{ allowed: boolean, used: number, limit: number, remaining: number }}
+ * Checks if the current user (or guest) has remaining generations.
+ * @returns {{ allowed: boolean, used: number, limit: number, remaining: number, isGuest: boolean }}
  */
 function checkRateLimit() {
+  // Guest mode: check guest generation counter
+  if (isGuest()) {
+    const used = getGuestGenerationsUsed();
+    const limit = GUEST_FREE_LIMIT;
+    const remaining = Math.max(0, limit - used);
+    return { allowed: used < limit, used, limit, remaining, isGuest: true };
+  }
+
   const user = getCurrentUser();
-  if (!user) return { allowed: false, used: 0, limit: 0, remaining: 0 };
+  if (!user)
+    return { allowed: false, used: 0, limit: 0, remaining: 0, isGuest: false };
 
   const used = user.generationsUsed || 0;
-  const limit = user.rateLimit || DEFAULT_RATE_LIMIT;
+  // Admin and unlimited plan users have no cap
+  const plan = user.plan || "free";
+  const planLimit = PLANS[plan] ? PLANS[plan].limit : DEFAULT_RATE_LIMIT;
+  const limit = user.rateLimit !== undefined ? user.rateLimit : planLimit;
   const remaining = Math.max(0, limit - used);
 
   return {
@@ -318,13 +402,18 @@ function checkRateLimit() {
     used,
     limit,
     remaining,
+    isGuest: false,
   };
 }
 
 /**
- * Increments the generation count for the current user.
+ * Increments the generation count for the current user or guest.
  */
 function incrementGenerationCount() {
+  if (isGuest()) {
+    incrementGuestGenerationCount();
+    return;
+  }
   const user = getCurrentUser();
   if (!user) return;
   updateUser(user.id, { generationsUsed: (user.generationsUsed || 0) + 1 });
@@ -453,11 +542,11 @@ function toggleTheme() {
 // ============================================================
 
 /**
- * Redirects to sign-in if user is not authenticated.
+ * Redirects to sign-in if user is not authenticated (and not a guest).
  * Call this at the top of protected pages.
  */
 function requireAuth() {
-  if (!isLoggedIn()) {
+  if (!isLoggedIn() && !isGuest()) {
     window.location.href = "../html/signin.html";
   }
 }

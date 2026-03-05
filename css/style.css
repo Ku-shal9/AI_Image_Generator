@@ -2823,3 +2823,57 @@ body.light-mode::after {
     padding: 0.75rem 1.25rem;
   }
 }
+
+/* ============================================================
+   GUEST BANNER (Sign-in page)
+   ============================================================ */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(0, 255, 136, 0.06);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+  color: var(--accent-primary);
+}
+
+body.light-mode .guest-banner {
+  background: rgba(0, 180, 100, 0.08);
+  border-color: rgba(0, 180, 100, 0.3);
+  color: #007a40;
+}
+
+/* ============================================================
+   SLIDE-IN ANIMATION (used by payment success toast)
+   ============================================================ */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================
+   GUEST MODE INDICATOR (navbar)
+   ============================================================ */
+.guest-mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--warning);
+  background: rgba(255, 204, 0, 0.1);
+  border: 1px solid rgba(255, 204, 0, 0.3);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-family: "Courier Prime", monospace;
+}

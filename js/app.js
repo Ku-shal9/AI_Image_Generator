@@ -62,35 +62,26 @@ let clearHistoryBtn;
 /** Holds the most recently generated image data */
 let currentImageData = null;
 
-/** localStorage key for optional Hugging Face API token (better-quality images) */
-const HF_TOKEN_KEY = "pg_hf_token";
+/**
+ * Owner's Hugging Face token — embedded at build time.
+ * All users generate images using this token (no user token needed).
+ * Uses FLUX.1-schnell via the Inference Providers router endpoint.
+ */
+const HF_OWNER_TOKEN = "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";
 
 /** Hugging Face model for text-to-image (FLUX.1-schnell: fast, high quality) */
 const HF_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell";
 
 /**
  * Hugging Face Inference API endpoint.
- * Uses the new router endpoint which supports CORS from browsers.
- * Requires a token with "Make calls to the serverless Inference API" permission.
+ * Uses the router endpoint which supports CORS from browsers.
  */
 const HF_API_URL = `https://router.huggingface.co/hf-inference/models/${HF_IMAGE_MODEL}`;
 
-/**
- * Returns the stored Hugging Face API token, or null if not set.
- * Token is set by the user in Profile → Hugging Face API Key.
- */
-function getHfToken() {
-  try {
-    const t = localStorage.getItem(HF_TOKEN_KEY);
-    return t && t.trim() ? t.trim() : null;
-  } catch (_) {
-    return null;
-  }
-}
-
-// Feature flag: Pollinations gen API (requires API key/server-side in 2026).
-// Left here for future use; currently disabled to avoid 401 errors.
+// Feature flag: Pollinations gen API (disabled — use HF + Puter instead).
 const POLLINATIONS_GEN_ENABLED = false;
+
+// Guest free limit is defined centrally in auth.js as GUEST_FREE_LIMIT
 
 // ============================================================
 // RATE LIMIT UI
@@ -311,73 +302,59 @@ async function generateImage() {
   const seed = Math.floor(Math.random() * 1000000);
 
   // ============================================================
-  // SERVICE 0: Hugging Face Inference API (primary when API key is set)
-  // Uses FLUX.1-schnell for high-quality, fast generation.
-  // IMPORTANT: Token must have "Make calls to the serverless Inference API"
-  // permission enabled at https://huggingface.co/settings/tokens
-  // (Read-only tokens will NOT work — you must enable Inference permission)
+  // SERVICE 0: Hugging Face Inference API (PRIMARY — always active)
+  // Uses owner's embedded token — no user token required.
+  // Model: FLUX.1-schnell (fast, high quality, 1024x1024)
+  // Falls back to Puter.ai if this fails.
   // ============================================================
-  const hfToken = getHfToken();
-  if (hfToken && !imgUrl) {
-    try {
-      console.log("[Photo Galli] Trying Hugging Face FLUX (primary)...");
+  try {
+    console.log("[Photo Galli] Trying Hugging Face FLUX (primary)...");
 
-      // Use the new router endpoint which supports browser CORS requests
-      const res = await fetch(HF_API_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${hfToken}`,
-          "Content-Type": "application/json",
+    const res = await fetch(HF_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_OWNER_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: cleanPrompt,
+        parameters: {
+          width: 1024,
+          height: 1024,
+          num_inference_steps: 4,
+          seed: seed,
         },
-        body: JSON.stringify({
-          inputs: cleanPrompt,
-          parameters: {
-            width: 1024,
-            height: 1024,
-            num_inference_steps: 4,
-            seed: seed,
-          },
-        }),
-      });
+      }),
+    });
 
-      if (res.ok) {
-        const blob = await res.blob();
-        if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
-          imgUrl = URL.createObjectURL(blob);
-          imageSource = "Hugging Face";
-          modelName = "FLUX.1-schnell";
-          console.log("[Photo Galli] Success with Hugging Face!");
-        } else {
-          console.warn(
-            "[Photo Galli] Hugging Face returned empty/non-image blob.",
-          );
-        }
-      } else if (res.status === 401 || res.status === 403) {
-        const errText = await res.text();
-        console.warn(
-          "[Photo Galli] Hugging Face auth error:",
-          res.status,
-          "— Make sure your token has 'Make calls to the serverless Inference API' permission enabled at https://huggingface.co/settings/tokens",
-          errText,
-        );
-      } else if (res.status === 503) {
-        const errText = await res.text();
-        console.warn(
-          "[Photo Galli] Hugging Face model loading (503):",
-          errText,
-          "— Model may be cold-starting, try again in a moment.",
-        );
+    if (res.ok) {
+      const blob = await res.blob();
+      if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
+        imgUrl = URL.createObjectURL(blob);
+        imageSource = "Hugging Face";
+        modelName = "FLUX.1-schnell";
+        console.log("[Photo Galli] Success with Hugging Face FLUX!");
       } else {
-        const errText = await res.text();
-        console.warn("[Photo Galli] Hugging Face error:", res.status, errText);
+        console.warn(
+          "[Photo Galli] Hugging Face returned empty/non-image blob.",
+        );
       }
-    } catch (err) {
+    } else if (res.status === 503) {
+      const errText = await res.text();
       console.warn(
-        "[Photo Galli] Hugging Face failed:",
-        err.message,
-        "— This may be a CORS issue or network error. Ensure your token has Inference API permission.",
+        "[Photo Galli] Hugging Face model loading (503) — cold start, falling back:",
+        errText,
       );
+    } else {
+      const errText = await res.text();
+      console.warn("[Photo Galli] Hugging Face error:", res.status, errText);
     }
+  } catch (err) {
+    console.warn(
+      "[Photo Galli] Hugging Face failed:",
+      err.message,
+      "— falling back to Puter.ai",
+    );
   }
 
   // ============================================================
@@ -697,13 +674,43 @@ function saveToGallery() {
 
 /**
  * Shows the payment wall when the user has exceeded their rate limit.
+ * For guests: prompts to sign up or upgrade.
+ * For registered users: redirects to pricing page.
  */
 function showPaymentWall() {
   const paymentWall = document.getElementById("paymentWall");
-  if (paymentWall) {
-    paymentWall.classList.remove("d-none");
-    paymentWall.scrollIntoView({ behavior: "smooth" });
+  if (!paymentWall) return;
+
+  // Update payment wall content based on user type
+  const rateCheck = checkRateLimit();
+  const wallTitle = paymentWall.querySelector(".payment-wall-title");
+  const wallText = paymentWall.querySelector(".payment-wall-text");
+  const wallBtn = paymentWall.querySelector(".btn-retro");
+
+  if (rateCheck.isGuest) {
+    if (wallTitle) wallTitle.textContent = "⚠ GUEST LIMIT REACHED";
+    if (wallText)
+      wallText.innerHTML = `You've used all <strong>${GUEST_FREE_LIMIT} free guest generations</strong>.<br/>Create a free account or upgrade to continue.`;
+    if (wallBtn) {
+      wallBtn.textContent = "🚀 Sign Up / Upgrade";
+      wallBtn.onclick = function () {
+        window.location.href = "html/pricing.html";
+      };
+    }
+  } else {
+    if (wallTitle) wallTitle.textContent = "⚠ LIMIT REACHED";
+    if (wallText)
+      wallText.innerHTML = `You've used all your generations for this plan.<br/>Upgrade to continue generating images.`;
+    if (wallBtn) {
+      wallBtn.textContent = "💳 View Plans";
+      wallBtn.onclick = function () {
+        window.location.href = "html/pricing.html";
+      };
+    }
   }
+
+  paymentWall.classList.remove("d-none");
+  paymentWall.scrollIntoView({ behavior: "smooth" });
 }
 
 // ============================================================
@@ -923,17 +930,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
   console.log("[DEBUG] promptInput initialized:", promptInput);
 
-  // Guard: must be logged in to access home page
+  // Guard: must be logged in (or guest) to access home page
   requireAuth();
 
   // Apply saved theme
   loadTheme();
 
-  // Update navbar
-  updateNavbarForUser();
+  // Update navbar — handle guest mode
+  if (isGuest()) {
+    // For guests: show "Sign Up" button instead of profile
+    const navSignOutBtn = document.getElementById("navSignOutBtn");
+    const profileBtn = document.getElementById("profileBtn");
+    if (navSignOutBtn) {
+      navSignOutBtn.textContent = "🚀 Sign Up";
+      navSignOutBtn.onclick = function () {
+        window.location.href = "html/signin.html";
+      };
+    }
+    if (profileBtn) profileBtn.style.display = "none";
 
-  // Update profile in navbar
-  updateNavbarProfile();
+    // Show guest badge in navbar
+    const navProfileInitial = document.getElementById("navProfileInitial");
+    if (navProfileInitial) {
+      navProfileInitial.textContent = "G";
+      navProfileInitial.style.display = "block";
+      navProfileInitial.title = "Guest Mode";
+    }
+  } else {
+    updateNavbarForUser();
+    updateNavbarProfile();
+  }
 
   // Render sidebar history
   renderSidebarHistory();

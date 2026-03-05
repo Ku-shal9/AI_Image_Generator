@@ -40,6 +40,18 @@
           <h1 class="auth-title">PHOTO GALLI</h1>
           <p class="auth-subtitle">AI Image Generator — Sign in to continue</p>
 
+          <!-- Guest mode banner -->
+          <div class="guest-banner">
+            <span>🎮 Try it free — no account needed</span>
+            <button
+              type="button"
+              id="guestModeBtn"
+              class="btn-retro btn-retro-ghost btn-retro-sm"
+            >
+              Continue as Guest (2 free)
+            </button>
+          </div>
+
           <!-- Role Selector: User or Admin -->
           <div class="role-selector" role="group" aria-label="Select role">
             <button
@@ -104,22 +116,58 @@
             </button>
           </form>
 
-          <!-- Demo credentials hint -->
-          <div class="auth-divider mt-4">Demo Credentials</div>
-          <div
-            style="
-              font-size: 0.78rem;
-              color: var(--text-muted);
-              text-align: center;
-              margin-top: 0.75rem;
-              line-height: 1.8;
-            "
-          >
-            <strong style="color: var(--text-secondary)">User:</strong> demo /
-            demo123<br />
-            <strong style="color: var(--text-secondary)">Admin:</strong> admin /
-            admin123
+          <!-- Sign up link -->
+          <div class="auth-divider mt-4">New here?</div>
+          <div style="text-align: center; margin-top: 0.75rem">
+            <button
+              type="button"
+              id="signupToggleBtn"
+              class="btn-retro btn-retro-secondary btn-retro-sm"
+            >
+              ✦ Create Account
+            </button>
           </div>
+
+          <!-- Sign-up form (hidden by default) -->
+          <form id="signupForm" class="d-none mt-3" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="signupUsernameInput"
+                >Choose Username</label
+              >
+              <input
+                type="text"
+                id="signupUsernameInput"
+                class="form-control-retro"
+                placeholder="username"
+                autocomplete="off"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="signupPasswordInput"
+                >Choose Password</label
+              >
+              <input
+                type="password"
+                id="signupPasswordInput"
+                class="form-control-retro"
+                placeholder="password (min 4 chars)"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+            <div
+              id="signupError"
+              class="alert-retro alert-retro-danger d-none mb-3"
+              role="alert"
+            ></div>
+            <button
+              type="submit"
+              class="btn-retro btn-retro-primary btn-retro-full"
+            >
+              ▶ Create Account
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -176,6 +224,63 @@
         roleAdminBtn.setAttribute("aria-pressed", "true");
         roleUserBtn.setAttribute("aria-pressed", "false");
       });
+
+      // ---- Guest Mode ----
+      const guestModeBtn = document.getElementById("guestModeBtn");
+      if (guestModeBtn) {
+        guestModeBtn.addEventListener("click", function () {
+          startGuestSession();
+          window.location.href = "../index.html";
+        });
+      }
+
+      // ---- Sign-up Toggle ----
+      const signupToggleBtn = document.getElementById("signupToggleBtn");
+      const signupForm = document.getElementById("signupForm");
+      if (signupToggleBtn && signupForm) {
+        signupToggleBtn.addEventListener("click", function () {
+          signupForm.classList.toggle("d-none");
+          signupToggleBtn.textContent = signupForm.classList.contains("d-none")
+            ? "✦ Create Account"
+            : "✕ Cancel";
+        });
+      }
+
+      // ---- Sign-up Form Submission ----
+      if (signupForm) {
+        signupForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const username = document
+            .getElementById("signupUsernameInput")
+            .value.trim();
+          const password = document
+            .getElementById("signupPasswordInput")
+            .value.trim();
+          const signupError = document.getElementById("signupError");
+
+          if (!username || !password) {
+            signupError.textContent = "Please fill in all fields.";
+            signupError.classList.remove("d-none");
+            return;
+          }
+          if (password.length < 4) {
+            signupError.textContent = "Password must be at least 4 characters.";
+            signupError.classList.remove("d-none");
+            return;
+          }
+
+          const result = createUser(username, password, "user");
+          if (result.success) {
+            const loginResult = signIn(username, password, "user");
+            if (loginResult.success) {
+              window.location.href = "../index.html";
+            }
+          } else {
+            signupError.textContent = result.message;
+            signupError.classList.remove("d-none");
+          }
+        });
+      }
 
       // ---- Form Submission ----
       const signinForm = document.getElementById("signinForm");
