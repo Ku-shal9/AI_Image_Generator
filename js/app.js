@@ -82,11 +82,11 @@ const HF_MODELS = [
 const HF_API_BASE = "https://router.huggingface.co/hf-inference/models";
 
 /**
- * Project-level Hugging Face token (owner token).
- * Set to empty string — users can supply their own token via the settings UI.
- * The app falls back to Puter.ai when no valid token is present.
+ * Project-level Hugging Face token.
+ * IMPORTANT: This must NEVER be hard-coded in frontend code.
+ * It is now read only inside the Netlify Function using an environment variable.
  */
-const HF_OWNER_TOKEN = "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";
+const HF_OWNER_TOKEN = "";
 
 /**
  * Safely reads the user's Hugging Face token from localStorage.
@@ -329,129 +329,45 @@ async function generateImage() {
   const seed = Math.floor(Math.random() * 1000000);
 
   // ============================================================
-  // SERVICE 0: Hugging Face Inference API (PRIMARY)
-  // Uses the user's stored token from localStorage ("pg_hf_token"),
-  // and falls back to the project-level HF_OWNER_TOKEN if not set.
-  // Model: FLUX.1-schnell (fast, high quality, 1024x1024).
-  // Falls back to Puter.ai if this fails or no token is present.
+  // SERVICE 0: Hugging Face via Netlify Function (PRIMARY)
+  // The real HF token is stored as an environment variable in Netlify
+  // and never exposed to the browser or GitHub.
   // ============================================================
+  try {
+    console.log("[Photo Galli] Calling Netlify HF function...");
+    const res = await fetch("/.netlify/functions/generate-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: cleanPrompt,
+        seed: seed,
+      }),
+    });
 
-  // Build a list of tokens to try: localStorage token first, then built-in owner token.
-  // This handles the case where a stale localStorage token causes 401s.
-  const localToken = getHuggingFaceToken();
-  const tokensToTry = [];
-  if (localToken)
-    tokensToTry.push({ token: localToken, source: "localStorage" });
-  if (HF_OWNER_TOKEN && HF_OWNER_TOKEN !== localToken) {
-    tokensToTry.push({ token: HF_OWNER_TOKEN, source: "built-in" });
-  }
-
-  if (tokensToTry.length > 0) {
-    outerLoop: for (const {
-      token: hfToken,
-      source: tokenSource,
-    } of tokensToTry) {
-      console.log(
-        `[Photo Galli] Using HF token from ${tokenSource}: ${hfToken.slice(0, 8)}...`,
-      );
-      // Try each HF model in order until one succeeds
-      for (const hfModelEntry of HF_MODELS) {
-        if (imgUrl) break outerLoop; // already got an image
-        const hfModel = hfModelEntry.id;
-        const hfSteps = hfModelEntry.steps;
-        try {
-          const shortName = hfModel.split("/").pop();
-          console.log(
-            `[Photo Galli] Trying Hugging Face model: ${shortName}...`,
-          );
-
-          const res = await fetch(`${HF_API_BASE}/${hfModel}`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${hfToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              inputs: cleanPrompt,
-              parameters: {
-                width: 1024,
-                height: 1024,
-                num_inference_steps: hfSteps,
-                seed: seed,
-              },
-            }),
-          });
-
-          if (res.ok) {
-            const blob = await res.blob();
-            if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
-              // Convert blob to a Data URL so it can be safely
-              // stored in localStorage and displayed on other pages.
-              const reader = new FileReader();
-              const dataUrl = await new Promise(function (resolve, reject) {
-                reader.onloadend = function () {
-                  resolve(reader.result);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-              });
-
-              imgUrl = dataUrl;
-              imageSource = "Hugging Face";
-              modelName = shortName;
-              console.log(
-                `[Photo Galli] Success with Hugging Face ${shortName}!`,
-              );
-            } else {
-              console.warn(
-                `[Photo Galli] ${shortName} returned empty/non-image blob.`,
-              );
-            }
-          } else if (res.status === 503) {
-            const errText = await res.text();
-            console.warn(
-              `[Photo Galli] ${shortName} loading (503) — cold start, trying next:`,
-              errText,
-            );
-          } else if (res.status === 401 || res.status === 403) {
-            const errText = await res.text();
-            console.warn(
-              `[Photo Galli] ${shortName} auth error (${res.status}) with ${tokenSource} token — trying next:`,
-              errText,
-            );
-            // If the localStorage token is invalid, clear it so future requests use the built-in token
-            if (tokenSource === "localStorage") {
-              try {
-                localStorage.removeItem("pg_hf_token");
-              } catch (_) {}
-              console.warn(
-                "[Photo Galli] Cleared stale localStorage HF token.",
-              );
-            }
-            // All models will fail with this token — skip to next token
-            break;
-          } else {
-            const errText = await res.text();
-            console.warn(
-              `[Photo Galli] ${shortName} error:`,
-              res.status,
-              errText,
-            );
-          }
-        } catch (err) {
-          console.warn(`[Photo Galli] Hugging Face model failed:`, err.message);
-        }
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.imageBase64) {
+        imgUrl = "data:image/png;base64," + data.imageBase64;
+        imageSource = "Hugging Face";
+        modelName = data.model || "HF Model";
+        console.log(
+          `[Photo Galli] Success with Hugging Face via Netlify (${modelName})!`,
+        );
       }
-    }
-
-    if (!imgUrl) {
-      console.log(
-        "[Photo Galli] All HF tokens/models failed — falling back to Puter.ai.",
+    } else {
+      const text = await res.text();
+      console.warn(
+        "[Photo Galli] Netlify HF function error:",
+        res.status,
+        text,
       );
     }
-  } else {
-    console.log(
-      "[Photo Galli] No Hugging Face token available; using Puter.ai only.",
+  } catch (err) {
+    console.warn(
+      "[Photo Galli] Netlify HF function failed:",
+      err && err.message ? err.message : err,
     );
   }
 
