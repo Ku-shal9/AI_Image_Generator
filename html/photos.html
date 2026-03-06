@@ -95,16 +95,27 @@
     <div class="page-wrapper">
       <!-- Page header -->
       <div style="padding: 2rem 1.5rem 0; max-width: 1200px; margin: 0 auto">
-        <div class="section-header">
-          <h1 class="section-title">My Photos</h1>
+        <div style="margin-bottom: 1.25rem">
+          <h1 class="section-title" style="margin-bottom: 0.75rem">
+            My Photos
+          </h1>
           <div
             style="
               display: flex;
               gap: 0.75rem;
               align-items: center;
               flex-wrap: wrap;
+              justify-content: flex-start;
             "
           >
+            <input
+              type="text"
+              id="gallerySearchInput"
+              class="form-control-retro"
+              placeholder="Search photos..."
+              aria-label="Search saved photos by prompt"
+              style="max-width: 220px"
+            />
             <a
               href="../index.html"
               class="btn-retro btn-retro-primary btn-retro-sm"

@@ -63,23 +63,44 @@ let clearHistoryBtn;
 let currentImageData = null;
 
 /**
- * Owner's Hugging Face token — embedded at build time.
- * All users generate images using this token (no user token needed).
- * Uses FLUX.1-schnell via the Inference Providers router endpoint.
+ * Hugging Face models tried in order.
+ * - FLUX.1-schnell: gated (accept license at huggingface.co/black-forest-labs/FLUX.1-schnell)
+ * - SDXL: open, no gating required
+ * - SD v1.5: widely available fallback
+ * router.huggingface.co supports CORS from browsers.
  */
-const HF_OWNER_TOKEN = "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";
-
-/** Hugging Face model for text-to-image (FLUX.1-schnell: fast, high quality) */
-const HF_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell";
+const HF_MODELS = [
+  { id: "black-forest-labs/FLUX.1-schnell", steps: 4 },
+  { id: "stabilityai/stable-diffusion-xl-base-1.0", steps: 20 },
+  { id: "runwayml/stable-diffusion-v1-5", steps: 20 },
+];
 
 /**
- * Hugging Face Inference API endpoint.
- * Uses the router endpoint which supports CORS from browsers.
+ * Hugging Face Inference Router base URL.
+ * This endpoint supports CORS from browser origins.
  */
-const HF_API_URL = `https://router.huggingface.co/hf-inference/models/${HF_IMAGE_MODEL}`;
+const HF_API_BASE = "https://router.huggingface.co/hf-inference/models";
 
-// Feature flag: Pollinations gen API (disabled — use HF + Puter instead).
-const POLLINATIONS_GEN_ENABLED = false;
+/**
+ * Project-level Hugging Face token (owner token).
+ * Set to empty string — users can supply their own token via the settings UI.
+ * The app falls back to Puter.ai when no valid token is present.
+ */
+const HF_OWNER_TOKEN = "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";
+
+/**
+ * Safely reads the user's Hugging Face token from localStorage.
+ * The token is stored under the key "pg_hf_token".
+ * If no token is found, returns an empty string.
+ * @returns {string}
+ */
+function getHuggingFaceToken() {
+  try {
+    return localStorage.getItem("pg_hf_token") || "";
+  } catch (_) {
+    return "";
+  }
+}
 
 // Guest free limit is defined centrally in auth.js as GUEST_FREE_LIMIT
 
@@ -127,10 +148,16 @@ function updateRateLimitUI() {
  * Renders the prompt history in the sidebar.
  * Each item is clickable to re-populate the prompt input.
  */
-function renderSidebarHistory() {
+function renderSidebarHistory(searchQuery = "") {
   if (!sidebarHistoryList) return;
 
-  const history = getUserPromptHistory();
+  const allHistory = getUserPromptHistory();
+  const query = searchQuery.trim().toLowerCase();
+  const history = query
+    ? allHistory.filter(function (entry) {
+        return entry.prompt.toLowerCase().includes(query);
+      })
+    : allHistory;
   sidebarHistoryList.innerHTML = "";
 
   if (history.length === 0) {
@@ -302,104 +329,134 @@ async function generateImage() {
   const seed = Math.floor(Math.random() * 1000000);
 
   // ============================================================
-  // SERVICE 0: Hugging Face Inference API (PRIMARY — always active)
-  // Uses owner's embedded token — no user token required.
-  // Model: FLUX.1-schnell (fast, high quality, 1024x1024)
-  // Falls back to Puter.ai if this fails.
+  // SERVICE 0: Hugging Face Inference API (PRIMARY)
+  // Uses the user's stored token from localStorage ("pg_hf_token"),
+  // and falls back to the project-level HF_OWNER_TOKEN if not set.
+  // Model: FLUX.1-schnell (fast, high quality, 1024x1024).
+  // Falls back to Puter.ai if this fails or no token is present.
   // ============================================================
-  try {
-    console.log("[Photo Galli] Trying Hugging Face FLUX (primary)...");
 
-    const res = await fetch(HF_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${HF_OWNER_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        inputs: cleanPrompt,
-        parameters: {
-          width: 1024,
-          height: 1024,
-          num_inference_steps: 4,
-          seed: seed,
-        },
-      }),
-    });
+  // Build a list of tokens to try: localStorage token first, then built-in owner token.
+  // This handles the case where a stale localStorage token causes 401s.
+  const localToken = getHuggingFaceToken();
+  const tokensToTry = [];
+  if (localToken)
+    tokensToTry.push({ token: localToken, source: "localStorage" });
+  if (HF_OWNER_TOKEN && HF_OWNER_TOKEN !== localToken) {
+    tokensToTry.push({ token: HF_OWNER_TOKEN, source: "built-in" });
+  }
 
-    if (res.ok) {
-      const blob = await res.blob();
-      if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
-        imgUrl = URL.createObjectURL(blob);
-        imageSource = "Hugging Face";
-        modelName = "FLUX.1-schnell";
-        console.log("[Photo Galli] Success with Hugging Face FLUX!");
-      } else {
-        console.warn(
-          "[Photo Galli] Hugging Face returned empty/non-image blob.",
-        );
-      }
-    } else if (res.status === 503) {
-      const errText = await res.text();
-      console.warn(
-        "[Photo Galli] Hugging Face model loading (503) — cold start, falling back:",
-        errText,
+  if (tokensToTry.length > 0) {
+    outerLoop: for (const {
+      token: hfToken,
+      source: tokenSource,
+    } of tokensToTry) {
+      console.log(
+        `[Photo Galli] Using HF token from ${tokenSource}: ${hfToken.slice(0, 8)}...`,
       );
-    } else {
-      const errText = await res.text();
-      console.warn("[Photo Galli] Hugging Face error:", res.status, errText);
+      // Try each HF model in order until one succeeds
+      for (const hfModelEntry of HF_MODELS) {
+        if (imgUrl) break outerLoop; // already got an image
+        const hfModel = hfModelEntry.id;
+        const hfSteps = hfModelEntry.steps;
+        try {
+          const shortName = hfModel.split("/").pop();
+          console.log(
+            `[Photo Galli] Trying Hugging Face model: ${shortName}...`,
+          );
+
+          const res = await fetch(`${HF_API_BASE}/${hfModel}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${hfToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              inputs: cleanPrompt,
+              parameters: {
+                width: 1024,
+                height: 1024,
+                num_inference_steps: hfSteps,
+                seed: seed,
+              },
+            }),
+          });
+
+          if (res.ok) {
+            const blob = await res.blob();
+            if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
+              // Convert blob to a Data URL so it can be safely
+              // stored in localStorage and displayed on other pages.
+              const reader = new FileReader();
+              const dataUrl = await new Promise(function (resolve, reject) {
+                reader.onloadend = function () {
+                  resolve(reader.result);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+
+              imgUrl = dataUrl;
+              imageSource = "Hugging Face";
+              modelName = shortName;
+              console.log(
+                `[Photo Galli] Success with Hugging Face ${shortName}!`,
+              );
+            } else {
+              console.warn(
+                `[Photo Galli] ${shortName} returned empty/non-image blob.`,
+              );
+            }
+          } else if (res.status === 503) {
+            const errText = await res.text();
+            console.warn(
+              `[Photo Galli] ${shortName} loading (503) — cold start, trying next:`,
+              errText,
+            );
+          } else if (res.status === 401 || res.status === 403) {
+            const errText = await res.text();
+            console.warn(
+              `[Photo Galli] ${shortName} auth error (${res.status}) with ${tokenSource} token — trying next:`,
+              errText,
+            );
+            // If the localStorage token is invalid, clear it so future requests use the built-in token
+            if (tokenSource === "localStorage") {
+              try {
+                localStorage.removeItem("pg_hf_token");
+              } catch (_) {}
+              console.warn(
+                "[Photo Galli] Cleared stale localStorage HF token.",
+              );
+            }
+            // All models will fail with this token — skip to next token
+            break;
+          } else {
+            const errText = await res.text();
+            console.warn(
+              `[Photo Galli] ${shortName} error:`,
+              res.status,
+              errText,
+            );
+          }
+        } catch (err) {
+          console.warn(`[Photo Galli] Hugging Face model failed:`, err.message);
+        }
+      }
     }
-  } catch (err) {
-    console.warn(
-      "[Photo Galli] Hugging Face failed:",
-      err.message,
-      "— falling back to Puter.ai",
+
+    if (!imgUrl) {
+      console.log(
+        "[Photo Galli] All HF tokens/models failed — falling back to Puter.ai.",
+      );
+    }
+  } else {
+    console.log(
+      "[Photo Galli] No Hugging Face token available; using Puter.ai only.",
     );
   }
 
   // ============================================================
-  // SERVICE 0b: Pollinations gen API (New primary, higher-quality)
-  // Unified endpoint: https://gen.pollinations.ai/image/{prompt}
-  // No API key required for basic usage.
-  // ============================================================
-  if (POLLINATIONS_GEN_ENABLED) {
-    try {
-      console.log("[Photo Galli] Trying Pollinations gen API (primary)...");
-
-      const genUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(cleanPrompt)}`;
-
-      const loaded = await new Promise(function (resolve) {
-        const testImg = new Image();
-        testImg.crossOrigin = "anonymous";
-        testImg.onload = function () {
-          if (testImg.width > 0 && testImg.height > 0) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        };
-        testImg.onerror = function () {
-          resolve(false);
-        };
-        setTimeout(function () {
-          resolve(false);
-        }, 60000);
-        testImg.src = genUrl;
-      });
-
-      if (loaded) {
-        imgUrl = genUrl;
-        imageSource = "Pollinations.gen";
-        modelName = "Flux / GPT Image (gen)";
-        console.log("[Photo Galli] Success with Pollinations gen API!");
-      }
-    } catch (err) {
-      console.warn("[Photo Galli] Pollinations gen API failed:", err.message);
-    }
-  }
-
-  // ============================================================
-  // SERVICE 1: Puter.js (Primary - Currently Working)
+  // SERVICE 1: Puter.js (Fallback)
   // Uses puter.ai.txt2img() - provides real AI-generated images
   // Puter.js must be loaded via <script src="https://js.puter.com/v2/"></script>
   // ============================================================
@@ -418,7 +475,30 @@ async function generateImage() {
         ]);
 
         if (puterImg && puterImg.src) {
-          imgUrl = puterImg.src;
+          let puterSrc = puterImg.src;
+
+          // If Puter gives us a blob: URL, convert it to a reusable data URL
+          if (puterSrc.startsWith("blob:")) {
+            try {
+              const resp = await fetch(puterSrc);
+              const blob = await resp.blob();
+              const reader = new FileReader();
+              puterSrc = await new Promise(function (resolve, reject) {
+                reader.onloadend = function () {
+                  resolve(reader.result);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              console.warn(
+                "[Photo Galli] Could not convert Puter blob to data URL:",
+                e.message,
+              );
+            }
+          }
+
+          imgUrl = puterSrc;
           imageSource = "Puter.ai";
           modelName = "Puter AI";
           console.log("[Photo Galli] Success with Puter.ai!");
@@ -430,127 +510,6 @@ async function generateImage() {
       }
     } catch (err) {
       console.warn("[Photo Galli] Puter.ai failed:", err.message);
-    }
-  }
-
-  // ============================================================
-  // SERVICE 2: Pollinations.ai (Fallback - Currently has 530 errors)
-  // Uses the default AI model (high quality, no API key needed)
-  // Endpoint: https://image.pollinations.ai/prompt/{text}
-  // ============================================================
-  if (!imgUrl) {
-    try {
-      console.log("[Photo Galli] Trying Pollinations.ai (1024x1024)...");
-
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1024&height=1024&seed=${seed}&nologo=true`;
-
-      const loaded = await new Promise(function (resolve) {
-        const testImg = new Image();
-        testImg.crossOrigin = "anonymous";
-        testImg.onload = function () {
-          if (testImg.width > 0 && testImg.height > 0) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        };
-        testImg.onerror = function () {
-          resolve(false);
-        };
-        setTimeout(function () {
-          resolve(false);
-        }, 45000);
-        testImg.src = pollinationsUrl;
-      });
-
-      if (loaded) {
-        imgUrl = pollinationsUrl;
-        imageSource = "Pollinations.ai";
-        modelName = "AI Diffusion Model";
-        console.log("[Photo Galli] Success with Pollinations.ai!");
-      }
-    } catch (err) {
-      console.warn("[Photo Galli] Pollinations.ai failed:", err.message);
-    }
-  }
-
-  // ============================================================
-  // SERVICE 3: Pollinations.ai (512x512 fallback)
-  // Try with smaller dimensions for faster generation
-  // ============================================================
-  if (!imgUrl) {
-    try {
-      console.log("[Photo Galli] Trying Pollinations.ai (512x512)...");
-
-      const altUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=512&height=512&seed=${seed + 1}&nologo=true`;
-
-      const loaded = await new Promise(function (resolve) {
-        const testImg = new Image();
-        testImg.crossOrigin = "anonymous";
-        testImg.onload = function () {
-          if (testImg.width > 0 && testImg.height > 0) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        };
-        testImg.onerror = function () {
-          resolve(false);
-        };
-        setTimeout(function () {
-          resolve(false);
-        }, 30000);
-        testImg.src = altUrl;
-      });
-
-      if (loaded) {
-        imgUrl = altUrl;
-        imageSource = "Pollinations.ai";
-        modelName = "AI Diffusion (512)";
-        console.log("[Photo Galli] Success with Pollinations.ai (512)!");
-      }
-    } catch (err) {
-      console.warn("[Photo Galli] Pollinations 512 failed:", err.message);
-    }
-  }
-
-  // ============================================================
-  // SERVICE 4: Pollinations.ai (Simple endpoint)
-  // Absolute simplest endpoint with minimal parameters
-  // ============================================================
-  if (!imgUrl) {
-    try {
-      console.log("[Photo Galli] Trying Pollinations.ai (simple)...");
-
-      const simpleUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?seed=${seed + 2}`;
-
-      const loaded = await new Promise(function (resolve) {
-        const testImg = new Image();
-        testImg.crossOrigin = "anonymous";
-        testImg.onload = function () {
-          if (testImg.width > 0 && testImg.height > 0) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        };
-        testImg.onerror = function () {
-          resolve(false);
-        };
-        setTimeout(function () {
-          resolve(false);
-        }, 25000);
-        testImg.src = simpleUrl;
-      });
-
-      if (loaded) {
-        imgUrl = simpleUrl;
-        imageSource = "Pollinations.ai";
-        modelName = "AI Model";
-        console.log("[Photo Galli] Success with Pollinations.ai (simple)!");
-      }
-    } catch (err) {
-      console.warn("[Photo Galli] Pollinations simple failed:", err.message);
     }
   }
 
@@ -963,6 +922,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Render sidebar history
   renderSidebarHistory();
+
+  // History search
+  const historySearchInput = document.getElementById("historySearchInput");
+  if (historySearchInput) {
+    historySearchInput.addEventListener("input", function (e) {
+      renderSidebarHistory(e.target.value || "");
+    });
+  }
 
   // Update rate limit display
   updateRateLimitUI();

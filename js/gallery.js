@@ -86,10 +86,20 @@ function formatDate(timestamp) {
  * Uses CSS Grid (defined in style.css) for the layout.
  * Each card shows the image, a truncated prompt, and the date.
  */
-function renderGallery() {
+function renderGallery(searchQuery = "") {
   if (!galleryGrid) return;
 
-  const images = getUserGalleryImages();
+  const allImages = getUserGalleryImages();
+  const query = searchQuery.trim().toLowerCase();
+  const images = (query
+    ? allImages.filter(function (img) {
+        return (img.prompt || "").toLowerCase().includes(query);
+      })
+    : allImages
+  ).filter(function (img) {
+    // Skip any stale blob: URLs that cannot be loaded on a new page
+    return img.url && !String(img.url).startsWith("blob:");
+  });
   galleryGrid.innerHTML = "";
 
   if (images.length === 0) {
@@ -461,6 +471,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const isLight = document.body.classList.contains("light-mode");
   if (themeToggleBtn) {
     themeToggleBtn.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+  }
+
+  // Gallery search
+  const gallerySearchInput = document.getElementById("gallerySearchInput");
+  if (gallerySearchInput) {
+    gallerySearchInput.addEventListener("input", function (e) {
+      renderGallery(e.target.value || "");
+    });
   }
 
   // Render the gallery

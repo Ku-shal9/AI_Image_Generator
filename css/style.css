@@ -73,6 +73,25 @@ body.light-mode {
   --border-color: var(--light-border-color);
 }
 
+/* Ensure good contrast in light mode */
+body.light-mode .card-retro-title,
+body.light-mode .section-title {
+  color: #1b5e20;
+}
+
+body.light-mode .auth-subtitle,
+body.light-mode .history-item,
+body.light-mode .gallery-card-prompt {
+  color: var(--light-text-secondary);
+}
+
+body.light-mode .nav-link:hover,
+body.light-mode .nav-link.active {
+  color: #0d47a1 !important;
+  border-color: #0d47a1;
+  text-shadow: none;
+}
+
 body.light-mode .navbar {
   background-color: var(--light-bg-secondary) !important;
   border-bottom-color: var(--light-border-color);
@@ -1159,8 +1178,9 @@ body.light-mode .profile-initial {
   text-align: center;
   color: var(--text-muted);
   font-size: 0.8rem;
-  margin: 1rem 0;
+  margin: 1.25rem auto 0.75rem;
   position: relative;
+  max-width: 220px;
 }
 
 .auth-divider::before,
@@ -1407,10 +1427,10 @@ body.light-mode .profile-initial {
 .section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .section-title {
