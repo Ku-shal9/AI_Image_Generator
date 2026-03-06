@@ -86,7 +86,7 @@ const HF_API_BASE = "https://router.huggingface.co/hf-inference/models";
  * Set to empty string — users can supply their own token via the settings UI.
  * The app falls back to Puter.ai when no valid token is present.
  */
-const HF_OWNER_TOKEN = "";
+const HF_OWNER_TOKEN = "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";
 
 /**
  * Safely reads the user's Hugging Face token from localStorage.
