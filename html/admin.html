@@ -54,7 +54,11 @@
             <li class="nav-item d-none d-lg-flex align-items-center ms-lg-2">
               <span
                 class="text-accent"
-                style="font-size: 0.7rem; font-weight: 700; margin-right: 0.5rem"
+                style="
+                  font-size: 0.7rem;
+                  font-weight: 700;
+                  margin-right: 0.5rem;
+                "
                 >[ADMIN]</span
               >
               <button
@@ -86,7 +90,10 @@
                   class="profile-avatar-small"
                   style="display: none"
                 />
-                <span id="navProfileInitialMobile" class="profile-initial"></span>
+                <span
+                  id="navProfileInitialMobile"
+                  class="profile-initial"
+                ></span>
               </button>
             </li>
             <li class="nav-item">
@@ -352,8 +359,9 @@
 
         const navProfileImg = document.getElementById("navProfileImg");
         const navProfileInitial = document.getElementById("navProfileInitial");
-        const navProfileImgMobile =
-          document.getElementById("navProfileImgMobile");
+        const navProfileImgMobile = document.getElementById(
+          "navProfileImgMobile",
+        );
         const navProfileInitialMobile = document.getElementById(
           "navProfileInitialMobile",
         );
@@ -368,7 +376,8 @@
         const profileRateLimit = document.getElementById("profileRateLimit");
         const profileRateFill = document.getElementById("profileRateFill");
 
-        const changePasswordForm = document.getElementById("changePasswordForm");
+        const changePasswordForm =
+          document.getElementById("changePasswordForm");
         const passwordChangeMsg = document.getElementById("passwordChangeMsg");
 
         function showPasswordMsg(message, type) {
@@ -406,7 +415,12 @@
             : "?";
 
           // Navbar avatars
-          applyAvatar(navProfileImg, navProfileInitial, storedProfilePic, initial);
+          applyAvatar(
+            navProfileImg,
+            navProfileInitial,
+            storedProfilePic,
+            initial,
+          );
           applyAvatar(
             navProfileImgMobile,
             navProfileInitialMobile,
@@ -418,8 +432,13 @@
           applyAvatar(profileImg, profileInitial, storedProfilePic, initial);
 
           // Modal text
-          if (profileUsername) profileUsername.textContent = user.username || "";
-          if (profileRole) profileRole.textContent = (user.role || "").toUpperCase();
+          if (profileUsername)
+            profileUsername.textContent = user.username || "";
+          if (profileRole)
+            profileRole.textContent = (user.role || "").toUpperCase();
+          const profileEmailEl = document.getElementById("profileEmail");
+          if (profileEmailEl)
+            profileEmailEl.textContent = user.email || "Not set";
 
           // Rate limit
           const used = user.generationsUsed || 0;
@@ -493,7 +512,8 @@
 
             const reader = new FileReader();
             reader.onload = function (ev) {
-              const imgData = ev.target && ev.target.result ? ev.target.result : "";
+              const imgData =
+                ev.target && ev.target.result ? ev.target.result : "";
               if (!imgData) return;
               const user = getCurrentUser();
               if (user) {
@@ -590,11 +610,109 @@
           </div>
 
           <div class="profile-section">
-            <div class="profile-info-row">
+            <div class="profile-info-row" id="profileUsernameRow">
               <span class="profile-label">Username:</span>
               <span id="profileUsername" class="profile-value"></span>
+              <button
+                type="button"
+                id="editUsernameBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+                style="
+                  margin-left: auto;
+                  font-size: 0.7rem;
+                  padding: 0.15rem 0.5rem;
+                "
+              >
+                ✏ Edit
+              </button>
             </div>
-            <div class="profile-info-row">
+            <div
+              id="editUsernameForm"
+              class="d-none"
+              style="margin-top: 0.5rem"
+            >
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <input
+                  type="text"
+                  id="newUsernameInput"
+                  class="form-control-retro"
+                  placeholder="New username"
+                  style="flex: 1; font-size: 0.85rem"
+                />
+                <button
+                  type="button"
+                  id="saveUsernameBtn"
+                  class="btn-retro btn-retro-primary btn-retro-sm"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  id="cancelUsernameBtn"
+                  class="btn-retro btn-retro-ghost btn-retro-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div
+                id="usernameChangeMsg"
+                class="d-none mt-2"
+                style="font-size: 0.8rem"
+                role="alert"
+              ></div>
+            </div>
+            <div class="profile-info-row" style="margin-top: 0.5rem">
+              <span class="profile-label">Email:</span>
+              <span
+                id="profileEmail"
+                class="profile-value"
+                style="font-size: 0.82rem"
+              ></span>
+              <button
+                type="button"
+                id="editEmailBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+                style="
+                  margin-left: auto;
+                  font-size: 0.7rem;
+                  padding: 0.15rem 0.5rem;
+                "
+              >
+                ✏ Edit
+              </button>
+            </div>
+            <div id="editEmailForm" class="d-none" style="margin-top: 0.5rem">
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <input
+                  type="email"
+                  id="newEmailInput"
+                  class="form-control-retro"
+                  placeholder="your@email.com"
+                  style="flex: 1; font-size: 0.85rem"
+                />
+                <button
+                  type="button"
+                  id="saveEmailBtn"
+                  class="btn-retro btn-retro-primary btn-retro-sm"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  id="cancelEmailBtn"
+                  class="btn-retro btn-retro-ghost btn-retro-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div
+                id="emailChangeMsg"
+                class="d-none mt-2"
+                style="font-size: 0.8rem"
+                role="alert"
+              ></div>
+            </div>
+            <div class="profile-info-row" style="margin-top: 0.5rem">
               <span class="profile-label">Role:</span>
               <span id="profileRole" class="profile-value"></span>
             </div>

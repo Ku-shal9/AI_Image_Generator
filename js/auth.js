@@ -15,6 +15,18 @@
  */
 
 // ============================================================
+// EMAILJS CONFIGURATION
+// ============================================================
+
+/** EmailJS credentials for OTP password reset emails */
+const EMAILJS_SERVICE_ID = "service_y5y99n8";
+const EMAILJS_TEMPLATE_ID = "template_aj0iut3";
+const EMAILJS_PUBLIC_KEY = "fBL0yqKEJrRIZNyvL";
+
+/** OTP expiry time in milliseconds (10 minutes) */
+const OTP_EXPIRY_MS = 10 * 60 * 1000;
+
+// ============================================================
 // CONSTANTS
 // ============================================================
 
@@ -692,6 +704,224 @@ function updateNavbarProfile() {
     navProfileImg.style.display = "none";
     navProfileInitial.textContent = initial;
     navProfileInitial.style.display = "block";
+  }
+}
+
+// ============================================================
+// USERNAME MANAGEMENT
+// ============================================================
+
+/**
+ * Changes the current user's username.
+ * @param {string} newUsername
+ * @returns {{ success: boolean, message: string }}
+ */
+function changeUsername(newUsername) {
+  const user = getCurrentUser();
+  if (!user) return { success: false, message: "Not logged in." };
+
+  const trimmed = newUsername.trim();
+  if (!trimmed || trimmed.length < 3) {
+    return {
+      success: false,
+      message: "Username must be at least 3 characters.",
+    };
+  }
+
+  // Check for duplicate (excluding current user)
+  const existing = findUserByUsername(trimmed);
+  if (existing && existing.id !== user.id) {
+    return { success: false, message: "Username already taken." };
+  }
+
+  updateUser(user.id, { username: trimmed });
+
+  // Update session to reflect new username
+  const session = getSession();
+  if (session) {
+    session.username = trimmed;
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+  }
+
+  return { success: true, message: "Username updated successfully." };
+}
+
+/**
+ * Admin: changes any user's username.
+ * @param {string} userId
+ * @param {string} newUsername
+ * @returns {{ success: boolean, message: string }}
+ */
+function adminChangeUsername(userId, newUsername) {
+  const trimmed = (newUsername || "").trim();
+  if (!trimmed || trimmed.length < 3) {
+    return {
+      success: false,
+      message: "Username must be at least 3 characters.",
+    };
+  }
+
+  const existing = findUserByUsername(trimmed);
+  if (existing && existing.id !== userId) {
+    return { success: false, message: "Username already taken." };
+  }
+
+  updateUser(userId, { username: trimmed });
+  return { success: true, message: "Username updated." };
+}
+
+/**
+ * Admin: resets any user's password directly.
+ * @param {string} userId
+ * @param {string} newPassword
+ * @returns {{ success: boolean, message: string }}
+ */
+function adminResetPassword(userId, newPassword) {
+  if (!newPassword || newPassword.length < 4) {
+    return {
+      success: false,
+      message: "Password must be at least 4 characters.",
+    };
+  }
+  updateUser(userId, { password: newPassword });
+  return { success: true, message: "Password reset successfully." };
+}
+
+// ============================================================
+// EMAIL MANAGEMENT
+// ============================================================
+
+/**
+ * Updates the email address for a user.
+ * @param {string} userId
+ * @param {string} email
+ * @returns {{ success: boolean, message: string }}
+ */
+function updateUserEmail(userId, email) {
+  const trimmed = (email || "").trim().toLowerCase();
+  if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return { success: false, message: "Please enter a valid email address." };
+  }
+  updateUser(userId, { email: trimmed });
+  return { success: true, message: "Email updated." };
+}
+
+// ============================================================
+// OTP / FORGOT PASSWORD
+// ============================================================
+
+/**
+ * Generates a 6-digit OTP and stores it in localStorage with expiry.
+ * @param {string} username - The username requesting the reset
+ * @returns {string|null} The OTP code, or null if user not found / no email
+ */
+function generateOTP(username) {
+  const user = findUserByUsername(username);
+  if (!user || !user.email) return null;
+
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  const expiry = Date.now() + OTP_EXPIRY_MS;
+
+  localStorage.setItem(
+    "pg_otp_" + user.id,
+    JSON.stringify({ otp, expiry, userId: user.id }),
+  );
+
+  return otp;
+}
+
+/**
+ * Verifies an OTP for a given username.
+ * @param {string} username
+ * @param {string} enteredOtp
+ * @returns {{ valid: boolean, userId?: string, message: string }}
+ */
+function verifyOTP(username, enteredOtp) {
+  const user = findUserByUsername(username);
+  if (!user) return { valid: false, message: "User not found." };
+
+  const stored = localStorage.getItem("pg_otp_" + user.id);
+  if (!stored)
+    return {
+      valid: false,
+      message: "No OTP requested. Please request a new one.",
+    };
+
+  const { otp, expiry } = JSON.parse(stored);
+
+  if (Date.now() > expiry) {
+    localStorage.removeItem("pg_otp_" + user.id);
+    return {
+      valid: false,
+      message: "OTP has expired. Please request a new one.",
+    };
+  }
+
+  if (otp !== enteredOtp.trim()) {
+    return { valid: false, message: "Incorrect OTP. Please try again." };
+  }
+
+  // OTP is valid — clear it so it can't be reused
+  localStorage.removeItem("pg_otp_" + user.id);
+  return { valid: true, userId: user.id, message: "OTP verified." };
+}
+
+/**
+ * Resets a user's password after OTP verification.
+ * @param {string} userId
+ * @param {string} newPassword
+ * @returns {{ success: boolean, message: string }}
+ */
+function resetPasswordWithOTP(userId, newPassword) {
+  if (!newPassword || newPassword.length < 4) {
+    return {
+      success: false,
+      message: "Password must be at least 4 characters.",
+    };
+  }
+  updateUser(userId, { password: newPassword });
+  return {
+    success: true,
+    message: "Password reset successfully. You can now sign in.",
+  };
+}
+
+/**
+ * Sends an OTP email via EmailJS.
+ * Requires EmailJS SDK to be loaded on the page.
+ * @param {string} toEmail - Recipient email address
+ * @param {string} username - The user's username
+ * @param {string} otpCode - The 6-digit OTP
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
+async function sendOTPEmail(toEmail, username, otpCode) {
+  if (typeof emailjs === "undefined") {
+    return {
+      success: false,
+      message: "Email service not loaded. Please refresh and try again.",
+    };
+  }
+
+  try {
+    await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      {
+        toEmail: toEmail,
+        username: username,
+        otp_code: otpCode,
+      },
+      {
+        publicKey: EMAILJS_PUBLIC_KEY,
+      },
+    );
+    return { success: true, message: "OTP sent to your email." };
+  } catch (err) {
+    console.error("[Photo Galli] EmailJS error:", err, err && err.text);
+    return {
+      success: false,
+      message: "Failed to send email. Please try again.",
+    };
   }
 }
 

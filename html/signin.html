@@ -13,6 +13,11 @@
     />
     <!-- Custom retro styles -->
     <link rel="stylesheet" href="../css/style.css" />
+    <!-- EmailJS SDK for OTP email sending -->
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
   </head>
   <body>
     <!-- ============================================================
@@ -116,6 +121,172 @@
             </button>
           </form>
 
+          <!-- Forgot Password link -->
+          <div style="text-align: center; margin-top: 0.75rem">
+            <button
+              type="button"
+              id="forgotPasswordBtn"
+              class="btn-retro btn-retro-ghost btn-retro-sm"
+              style="font-size: 0.75rem"
+            >
+              🔑 Forgot Password?
+            </button>
+          </div>
+
+          <!-- ============================================================
+               FORGOT PASSWORD FLOW (hidden by default)
+               Step 1: Enter username → send OTP
+               Step 2: Enter OTP
+               Step 3: Enter new password
+               ============================================================ -->
+          <div id="forgotPasswordSection" class="d-none mt-3">
+            <div
+              style="
+                border-top: 1px solid var(--border-color);
+                padding-top: 1rem;
+                margin-top: 0.5rem;
+              "
+            >
+              <h3
+                style="
+                  font-family: &quot;VT323&quot;, monospace;
+                  font-size: 1.2rem;
+                  color: var(--accent-secondary);
+                  margin-bottom: 1rem;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                "
+              >
+                🔑 Reset Password
+              </h3>
+
+              <!-- Step 1: Username input -->
+              <div id="fpStep1">
+                <div class="form-group">
+                  <label class="form-label" for="fpUsernameInput"
+                    >Your Username</label
+                  >
+                  <input
+                    type="text"
+                    id="fpUsernameInput"
+                    class="form-control-retro"
+                    placeholder="Enter your username"
+                    autocomplete="off"
+                  />
+                </div>
+                <div
+                  id="fpStep1Error"
+                  class="alert-retro alert-retro-danger d-none mb-3"
+                  role="alert"
+                ></div>
+                <button
+                  type="button"
+                  id="fpSendOtpBtn"
+                  class="btn-retro btn-retro-primary btn-retro-full"
+                >
+                  📧 Send OTP to Email
+                </button>
+              </div>
+
+              <!-- Step 2: OTP verification -->
+              <div id="fpStep2" class="d-none">
+                <p
+                  id="fpEmailHint"
+                  style="
+                    font-size: 0.8rem;
+                    color: var(--text-muted);
+                    margin-bottom: 0.75rem;
+                  "
+                ></p>
+                <div class="form-group">
+                  <label class="form-label" for="fpOtpInput"
+                    >Enter 6-digit OTP</label
+                  >
+                  <input
+                    type="text"
+                    id="fpOtpInput"
+                    class="form-control-retro"
+                    placeholder="123456"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    inputmode="numeric"
+                  />
+                </div>
+                <div
+                  id="fpStep2Error"
+                  class="alert-retro alert-retro-danger d-none mb-3"
+                  role="alert"
+                ></div>
+                <div style="display: flex; gap: 0.5rem">
+                  <button
+                    type="button"
+                    id="fpVerifyOtpBtn"
+                    class="btn-retro btn-retro-primary"
+                    style="flex: 1"
+                  >
+                    ✓ Verify OTP
+                  </button>
+                  <button
+                    type="button"
+                    id="fpResendOtpBtn"
+                    class="btn-retro btn-retro-ghost btn-retro-sm"
+                  >
+                    Resend
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 3: New password -->
+              <div id="fpStep3" class="d-none">
+                <div class="form-group">
+                  <label class="form-label" for="fpNewPassword"
+                    >New Password</label
+                  >
+                  <input
+                    type="password"
+                    id="fpNewPassword"
+                    class="form-control-retro"
+                    placeholder="Min. 4 characters"
+                    autocomplete="new-password"
+                    minlength="4"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="fpConfirmPassword"
+                    >Confirm Password</label
+                  >
+                  <input
+                    type="password"
+                    id="fpConfirmPassword"
+                    class="form-control-retro"
+                    placeholder="Repeat new password"
+                    autocomplete="new-password"
+                    minlength="4"
+                  />
+                </div>
+                <div
+                  id="fpStep3Error"
+                  class="alert-retro alert-retro-danger d-none mb-3"
+                  role="alert"
+                ></div>
+                <button
+                  type="button"
+                  id="fpResetBtn"
+                  class="btn-retro btn-retro-primary btn-retro-full"
+                >
+                  🔒 Reset Password
+                </button>
+              </div>
+
+              <!-- Success message -->
+              <div
+                id="fpSuccess"
+                class="alert-retro alert-retro-success d-none mt-3"
+                role="alert"
+              ></div>
+            </div>
+          </div>
+
           <!-- Sign up link -->
           <div class="auth-divider mt-4">New here?</div>
           <div style="text-align: center; margin-top: 0.75rem">
@@ -138,10 +309,25 @@
                 type="text"
                 id="signupUsernameInput"
                 class="form-control-retro"
-                placeholder="username"
+                placeholder="username (min 3 chars)"
                 autocomplete="off"
                 required
               />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="signupEmailInput"
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signupEmailInput"
+                class="form-control-retro"
+                placeholder="your@email.com (for password reset)"
+                autocomplete="email"
+              />
+              <small style="color: var(--text-muted); font-size: 0.72rem"
+                >Optional but required for password reset</small
+              >
             </div>
             <div class="form-group">
               <label class="form-label" for="signupPasswordInput"
@@ -186,7 +372,7 @@
     <script>
       /**
        * Sign-in page script.
-       * Handles role selection, form submission, and redirects.
+       * Handles role selection, form submission, forgot password OTP flow, and redirects.
        */
 
       // Redirect if already logged in
@@ -253,13 +439,21 @@
           const username = document
             .getElementById("signupUsernameInput")
             .value.trim();
+          const email = document
+            .getElementById("signupEmailInput")
+            .value.trim();
           const password = document
             .getElementById("signupPasswordInput")
             .value.trim();
           const signupError = document.getElementById("signupError");
 
           if (!username || !password) {
-            signupError.textContent = "Please fill in all fields.";
+            signupError.textContent = "Please fill in username and password.";
+            signupError.classList.remove("d-none");
+            return;
+          }
+          if (username.length < 3) {
+            signupError.textContent = "Username must be at least 3 characters.";
             signupError.classList.remove("d-none");
             return;
           }
@@ -271,6 +465,10 @@
 
           const result = createUser(username, password, "user");
           if (result.success) {
+            // Save email if provided
+            if (email && result.user) {
+              updateUserEmail(result.user.id, email);
+            }
             const loginResult = signIn(username, password, "user");
             if (loginResult.success) {
               window.location.href = "../index.html";
@@ -323,6 +521,210 @@
         signinError.textContent = message;
         signinError.classList.remove("d-none");
       }
+
+      // ============================================================
+      // FORGOT PASSWORD FLOW
+      // ============================================================
+
+      const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+      const forgotPasswordSection = document.getElementById(
+        "forgotPasswordSection",
+      );
+      const fpStep1 = document.getElementById("fpStep1");
+      const fpStep2 = document.getElementById("fpStep2");
+      const fpStep3 = document.getElementById("fpStep3");
+      const fpSuccess = document.getElementById("fpSuccess");
+
+      let fpVerifiedUserId = null; // Set after OTP verified
+
+      // Toggle forgot password section
+      forgotPasswordBtn.addEventListener("click", function () {
+        forgotPasswordSection.classList.toggle("d-none");
+        if (!forgotPasswordSection.classList.contains("d-none")) {
+          // Reset to step 1
+          fpStep1.classList.remove("d-none");
+          fpStep2.classList.add("d-none");
+          fpStep3.classList.add("d-none");
+          fpSuccess.classList.add("d-none");
+          document.getElementById("fpUsernameInput").value = "";
+          document.getElementById("fpStep1Error").classList.add("d-none");
+        }
+      });
+
+      // Step 1: Send OTP
+      document
+        .getElementById("fpSendOtpBtn")
+        .addEventListener("click", async function () {
+          const username = document
+            .getElementById("fpUsernameInput")
+            .value.trim();
+          const errorEl = document.getElementById("fpStep1Error");
+          const btn = this;
+
+          if (!username) {
+            errorEl.textContent = "Please enter your username.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          const user = findUserByUsername(username);
+          if (!user) {
+            errorEl.textContent = "No account found with that username.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          if (!user.email) {
+            errorEl.textContent =
+              "No email address on file for this account. Please contact an admin to reset your password.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          errorEl.classList.add("d-none");
+          btn.textContent = "⏳ Sending...";
+          btn.disabled = true;
+
+          const otp = generateOTP(username);
+          if (!otp) {
+            errorEl.textContent = "Failed to generate OTP. Please try again.";
+            errorEl.classList.remove("d-none");
+            btn.textContent = "📧 Send OTP to Email";
+            btn.disabled = false;
+            return;
+          }
+
+          const result = await sendOTPEmail(user.email, user.username, otp);
+
+          btn.textContent = "📧 Send OTP to Email";
+          btn.disabled = false;
+
+          if (result.success) {
+            // Show masked email hint
+            const masked = user.email.replace(
+              /(.{2})(.*)(@.*)/,
+              function (_, a, b, c) {
+                return a + "*".repeat(Math.max(2, b.length)) + c;
+              },
+            );
+            document.getElementById("fpEmailHint").textContent =
+              "OTP sent to " + masked + ". Check your inbox (and spam folder).";
+            fpStep1.classList.add("d-none");
+            fpStep2.classList.remove("d-none");
+            // Store username for step 2
+            fpStep2.dataset.username = username;
+          } else {
+            errorEl.textContent = result.message;
+            errorEl.classList.remove("d-none");
+          }
+        });
+
+      // Step 2: Verify OTP
+      document
+        .getElementById("fpVerifyOtpBtn")
+        .addEventListener("click", function () {
+          const username = fpStep2.dataset.username;
+          const otp = document.getElementById("fpOtpInput").value.trim();
+          const errorEl = document.getElementById("fpStep2Error");
+
+          if (!otp || otp.length !== 6) {
+            errorEl.textContent = "Please enter the 6-digit OTP.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          const result = verifyOTP(username, otp);
+          if (result.valid) {
+            fpVerifiedUserId = result.userId;
+            errorEl.classList.add("d-none");
+            fpStep2.classList.add("d-none");
+            fpStep3.classList.remove("d-none");
+          } else {
+            errorEl.textContent = result.message;
+            errorEl.classList.remove("d-none");
+          }
+        });
+
+      // Step 2: Resend OTP
+      document
+        .getElementById("fpResendOtpBtn")
+        .addEventListener("click", async function () {
+          const username = fpStep2.dataset.username;
+          const errorEl = document.getElementById("fpStep2Error");
+          const btn = this;
+
+          btn.textContent = "⏳ Sending...";
+          btn.disabled = true;
+
+          const user = findUserByUsername(username);
+          const otp = generateOTP(username);
+
+          if (!otp || !user) {
+            errorEl.textContent = "Failed to resend OTP.";
+            errorEl.classList.remove("d-none");
+            btn.textContent = "Resend";
+            btn.disabled = false;
+            return;
+          }
+
+          const result = await sendOTPEmail(user.email, user.username, otp);
+          btn.textContent = "Resend";
+          btn.disabled = false;
+
+          if (result.success) {
+            errorEl.className = "alert-retro alert-retro-success mb-3";
+            errorEl.textContent = "OTP resent successfully.";
+            errorEl.classList.remove("d-none");
+            setTimeout(function () {
+              errorEl.classList.add("d-none");
+            }, 3000);
+          } else {
+            errorEl.className = "alert-retro alert-retro-danger mb-3";
+            errorEl.textContent = result.message;
+            errorEl.classList.remove("d-none");
+          }
+        });
+
+      // Step 3: Reset password
+      document
+        .getElementById("fpResetBtn")
+        .addEventListener("click", function () {
+          const newPwd = document.getElementById("fpNewPassword").value;
+          const confirmPwd = document.getElementById("fpConfirmPassword").value;
+          const errorEl = document.getElementById("fpStep3Error");
+
+          if (!newPwd || newPwd.length < 4) {
+            errorEl.textContent = "Password must be at least 4 characters.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          if (newPwd !== confirmPwd) {
+            errorEl.textContent = "Passwords do not match.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          if (!fpVerifiedUserId) {
+            errorEl.textContent = "Session expired. Please start over.";
+            errorEl.classList.remove("d-none");
+            return;
+          }
+
+          const result = resetPasswordWithOTP(fpVerifiedUserId, newPwd);
+          if (result.success) {
+            fpStep3.classList.add("d-none");
+            fpSuccess.textContent =
+              "✓ " +
+              result.message +
+              " You can now sign in with your new password.";
+            fpSuccess.classList.remove("d-none");
+            fpVerifiedUserId = null;
+          } else {
+            errorEl.textContent = result.message;
+            errorEl.classList.remove("d-none");
+          }
+        });
     </script>
   </body>
 </html>

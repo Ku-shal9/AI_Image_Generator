@@ -500,74 +500,146 @@
         const user = getCurrentUser();
         if (!user) return;
 
-        // Update username and role
         const profileUsername = document.getElementById("profileUsername");
         const profileRole = document.getElementById("profileRole");
+        const profileEmail = document.getElementById("profileEmail");
         const profileRateUsed = document.getElementById("profileRateUsed");
         const profileRateLimit = document.getElementById("profileRateLimit");
         const profileRateFill = document.getElementById("profileRateFill");
 
         if (profileUsername) profileUsername.textContent = user.username;
         if (profileRole) profileRole.textContent = user.role.toUpperCase();
+        if (profileEmail) profileEmail.textContent = user.email || "Not set";
 
-        // Update rate limit display
-        if (user) {
-          const used = user.generationsUsed || 0;
-          const limit = user.rateLimit || 6;
-
-          if (profileRateUsed) profileRateUsed.textContent = used;
-          if (profileRateLimit) profileRateLimit.textContent = limit;
-
-          if (profileRateFill) {
-            const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
-            profileRateFill.style.width = pct + "%";
-
-            // Color based on usage
-            if (pct >= 100) {
-              profileRateFill.classList.add("exceeded");
-            } else {
-              profileRateFill.classList.remove("exceeded");
-            }
-          }
+        const used = user.generationsUsed || 0;
+        const limit = user.rateLimit || 6;
+        if (profileRateUsed) profileRateUsed.textContent = used;
+        if (profileRateLimit) profileRateLimit.textContent = limit;
+        if (profileRateFill) {
+          const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+          profileRateFill.style.width = pct + "%";
+          if (pct >= 100) profileRateFill.classList.add("exceeded");
+          else profileRateFill.classList.remove("exceeded");
         }
 
-        // Update profile picture
         const profileImg = document.getElementById("profileImg");
         const profileInitial = document.getElementById("profileInitial");
         const navProfileImg = document.getElementById("navProfileImg");
         const navProfileInitial = document.getElementById("navProfileInitial");
-
-        // Check for profile picture in localStorage (stored as base64)
         const storedProfilePic = getUserProfilePicture(user.id);
 
         if (storedProfilePic && profileImg) {
-          // Display stored profile picture in modal
           profileImg.src = storedProfilePic;
           profileImg.style.display = "block";
           if (profileInitial) profileInitial.style.display = "none";
         } else if (profileInitial) {
-          // Show initial letter if no profile picture
-          const initial = user.username
+          profileInitial.textContent = user.username
             ? user.username.charAt(0).toUpperCase()
             : "?";
-          profileInitial.textContent = initial;
           profileInitial.style.display = "flex";
           if (profileImg) profileImg.style.display = "none";
         }
-
-        // Also update navbar profile picture
         if (storedProfilePic && navProfileImg) {
           navProfileImg.src = storedProfilePic;
           navProfileImg.style.display = "block";
           if (navProfileInitial) navProfileInitial.style.display = "none";
         } else if (navProfileInitial) {
-          const initial = user.username
+          navProfileInitial.textContent = user.username
             ? user.username.charAt(0).toUpperCase()
             : "?";
-          navProfileInitial.textContent = initial;
           navProfileInitial.style.display = "flex";
           if (navProfileImg) navProfileImg.style.display = "none";
         }
+      }
+
+      // Username edit
+      const editUsernameBtn = document.getElementById("editUsernameBtn");
+      const editUsernameForm = document.getElementById("editUsernameForm");
+      const saveUsernameBtn = document.getElementById("saveUsernameBtn");
+      const cancelUsernameBtn = document.getElementById("cancelUsernameBtn");
+      const newUsernameInput = document.getElementById("newUsernameInput");
+      const usernameChangeMsg = document.getElementById("usernameChangeMsg");
+
+      if (editUsernameBtn) {
+        editUsernameBtn.addEventListener("click", function () {
+          const user = getCurrentUser();
+          if (newUsernameInput)
+            newUsernameInput.value = user ? user.username : "";
+          editUsernameForm.classList.remove("d-none");
+          editUsernameBtn.classList.add("d-none");
+        });
+      }
+      if (cancelUsernameBtn) {
+        cancelUsernameBtn.addEventListener("click", function () {
+          editUsernameForm.classList.add("d-none");
+          editUsernameBtn.classList.remove("d-none");
+          usernameChangeMsg.classList.add("d-none");
+        });
+      }
+      if (saveUsernameBtn) {
+        saveUsernameBtn.addEventListener("click", function () {
+          const val = newUsernameInput ? newUsernameInput.value : "";
+          const result = changeUsername(val);
+          usernameChangeMsg.className = result.success
+            ? "alert-retro alert-retro-success mt-2"
+            : "alert-retro alert-retro-danger mt-2";
+          usernameChangeMsg.textContent = result.message;
+          usernameChangeMsg.classList.remove("d-none");
+          if (result.success) {
+            updateProfileInfo();
+            setTimeout(function () {
+              editUsernameForm.classList.add("d-none");
+              editUsernameBtn.classList.remove("d-none");
+              usernameChangeMsg.classList.add("d-none");
+            }, 1500);
+          }
+        });
+      }
+
+      // Email edit
+      const editEmailBtn = document.getElementById("editEmailBtn");
+      const editEmailForm = document.getElementById("editEmailForm");
+      const saveEmailBtn = document.getElementById("saveEmailBtn");
+      const cancelEmailBtn = document.getElementById("cancelEmailBtn");
+      const newEmailInput = document.getElementById("newEmailInput");
+      const emailChangeMsg = document.getElementById("emailChangeMsg");
+
+      if (editEmailBtn) {
+        editEmailBtn.addEventListener("click", function () {
+          const user = getCurrentUser();
+          if (newEmailInput)
+            newEmailInput.value = user && user.email ? user.email : "";
+          editEmailForm.classList.remove("d-none");
+          editEmailBtn.classList.add("d-none");
+        });
+      }
+      if (cancelEmailBtn) {
+        cancelEmailBtn.addEventListener("click", function () {
+          editEmailForm.classList.add("d-none");
+          editEmailBtn.classList.remove("d-none");
+          emailChangeMsg.classList.add("d-none");
+        });
+      }
+      if (saveEmailBtn) {
+        saveEmailBtn.addEventListener("click", function () {
+          const user = getCurrentUser();
+          if (!user) return;
+          const val = newEmailInput ? newEmailInput.value : "";
+          const result = updateUserEmail(user.id, val);
+          emailChangeMsg.className = result.success
+            ? "alert-retro alert-retro-success mt-2"
+            : "alert-retro alert-retro-danger mt-2";
+          emailChangeMsg.textContent = result.message;
+          emailChangeMsg.classList.remove("d-none");
+          if (result.success) {
+            updateProfileInfo();
+            setTimeout(function () {
+              editEmailForm.classList.add("d-none");
+              editEmailBtn.classList.remove("d-none");
+              emailChangeMsg.classList.add("d-none");
+            }, 1500);
+          }
+        });
       }
     </script>
 
@@ -620,11 +692,109 @@
 
           <!-- User Info -->
           <div class="profile-section">
-            <div class="profile-info-row">
+            <div class="profile-info-row" id="profileUsernameRow">
               <span class="profile-label">Username:</span>
               <span id="profileUsername" class="profile-value"></span>
+              <button
+                type="button"
+                id="editUsernameBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+                style="
+                  margin-left: auto;
+                  font-size: 0.7rem;
+                  padding: 0.15rem 0.5rem;
+                "
+              >
+                ✏ Edit
+              </button>
             </div>
-            <div class="profile-info-row">
+            <div
+              id="editUsernameForm"
+              class="d-none"
+              style="margin-top: 0.5rem"
+            >
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <input
+                  type="text"
+                  id="newUsernameInput"
+                  class="form-control-retro"
+                  placeholder="New username"
+                  style="flex: 1; font-size: 0.85rem"
+                />
+                <button
+                  type="button"
+                  id="saveUsernameBtn"
+                  class="btn-retro btn-retro-primary btn-retro-sm"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  id="cancelUsernameBtn"
+                  class="btn-retro btn-retro-ghost btn-retro-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div
+                id="usernameChangeMsg"
+                class="d-none mt-2"
+                style="font-size: 0.8rem"
+                role="alert"
+              ></div>
+            </div>
+            <div class="profile-info-row" style="margin-top: 0.5rem">
+              <span class="profile-label">Email:</span>
+              <span
+                id="profileEmail"
+                class="profile-value"
+                style="font-size: 0.82rem"
+              ></span>
+              <button
+                type="button"
+                id="editEmailBtn"
+                class="btn-retro btn-retro-ghost btn-retro-sm"
+                style="
+                  margin-left: auto;
+                  font-size: 0.7rem;
+                  padding: 0.15rem 0.5rem;
+                "
+              >
+                ✏ Edit
+              </button>
+            </div>
+            <div id="editEmailForm" class="d-none" style="margin-top: 0.5rem">
+              <div style="display: flex; gap: 0.5rem; align-items: center">
+                <input
+                  type="email"
+                  id="newEmailInput"
+                  class="form-control-retro"
+                  placeholder="your@email.com"
+                  style="flex: 1; font-size: 0.85rem"
+                />
+                <button
+                  type="button"
+                  id="saveEmailBtn"
+                  class="btn-retro btn-retro-primary btn-retro-sm"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  id="cancelEmailBtn"
+                  class="btn-retro btn-retro-ghost btn-retro-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div
+                id="emailChangeMsg"
+                class="d-none mt-2"
+                style="font-size: 0.8rem"
+                role="alert"
+              ></div>
+            </div>
+            <div class="profile-info-row" style="margin-top: 0.5rem">
               <span class="profile-label">Role:</span>
               <span id="profileRole" class="profile-value"></span>
             </div>
