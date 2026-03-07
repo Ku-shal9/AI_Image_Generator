@@ -1,0 +1,21 @@
+/* guest.css - Guest banner on sign-in page */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(0, 255, 136, 0.06);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+  color: var(--accent-primary);
+}
+
+body.light-mode .guest-banner {
+  background: rgba(0, 180, 100, 0.08);
+  border-color: rgba(0, 180, 100, 0.3);
+  color: #007a40;
+}

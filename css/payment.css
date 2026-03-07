@@ -1,0 +1,25 @@
+/* payment.css - Payment wall (rate limit exceeded) */
+.payment-wall {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 51, 102, 0.1),
+    rgba(123, 47, 255, 0.1)
+  );
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.payment-wall-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.85rem;
+  color: var(--danger);
+  margin-bottom: 1rem;
+}
+
+.payment-wall-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}

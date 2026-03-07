@@ -331,10 +331,21 @@
     <!-- Puter.js for free AI image generation -->
     <script src="https://js.puter.com/v2/"></script>
 
-    <!-- Auth module (must load first) -->
+    <!-- Auth modules (order matters) -->
+    <script src="js/auth-const.js"></script>
+    <script src="js/auth-session.js"></script>
+    <script src="js/auth-guest.js"></script>
+    <script src="js/auth-core.js"></script>
+    <script src="js/auth-theme.js"></script>
+    <script src="js/auth-nav.js"></script>
+    <script src="js/auth-profile.js"></script>
+    <script src="js/auth-user.js"></script>
+    <script src="js/auth-otp.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- Main app logic -->
+    <!-- App modules -->
+    <script src="js/app-dom.js"></script>
+    <script src="js/app-main.js"></script>
     <script src="js/app.js"></script>
 
     <!-- Sidebar toggle script -->

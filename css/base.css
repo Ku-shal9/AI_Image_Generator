@@ -1,0 +1,88 @@
+/* base.css - Reset, body, and light mode base styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Courier Prime", "Courier New", monospace;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  line-height: 1.6;
+}
+
+body.light-mode {
+  background-color: var(--light-bg-primary);
+  color: var(--light-text-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-card: var(--light-bg-card);
+  --bg-sidebar: var(--light-bg-sidebar);
+  --text-secondary: var(--light-text-secondary);
+  --border-color: var(--light-border-color);
+}
+
+body.light-mode .card-retro-title,
+body.light-mode .section-title {
+  color: #1b5e20;
+}
+
+body.light-mode .auth-subtitle,
+body.light-mode .history-item,
+body.light-mode .gallery-card-prompt {
+  color: var(--light-text-secondary);
+}
+
+body.light-mode .nav-link:hover,
+body.light-mode .nav-link.active {
+  color: #0d47a1 !important;
+  border-color: #0d47a1;
+  text-shadow: none;
+}
+
+body.light-mode .navbar {
+  background-color: var(--light-bg-secondary) !important;
+  border-bottom-color: var(--light-border-color);
+}
+
+body.light-mode .navbar-brand,
+body.light-mode .nav-link {
+  color: var(--light-text-primary) !important;
+}
+
+body.light-mode .sidebar {
+  background-color: var(--light-bg-sidebar);
+  border-right-color: var(--light-border-color);
+}
+
+body.light-mode .card-retro {
+  background-color: var(--light-bg-card);
+  border-color: var(--light-border-color);
+}
+
+body.light-mode .form-control-retro {
+  background-color: var(--light-bg-secondary);
+  color: var(--light-text-primary);
+  border-color: var(--light-border-color);
+}
+
+body.light-mode .history-item {
+  background-color: var(--light-bg-secondary);
+  border-color: var(--light-border-color);
+  color: var(--light-text-primary);
+}
+
+body.light-mode .history-item:hover {
+  background-color: var(--light-bg-card);
+  border-color: var(--accent-primary);
+}

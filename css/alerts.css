@@ -1,0 +1,28 @@
+/* alerts.css - Alert/error/success message styles */
+.alert-retro {
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-retro-danger {
+  background-color: rgba(255, 51, 102, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.alert-retro-success {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.alert-retro-warning {
+  background-color: rgba(255, 204, 0, 0.1);
+  border-color: var(--warning);
+  color: var(--warning);
+}

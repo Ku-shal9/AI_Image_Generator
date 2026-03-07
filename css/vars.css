@@ -1,0 +1,30 @@
+/* vars.css - CSS variables and font imports */
+@import url("https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Courier+Prime:wght@400;700&display=swap");
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a2e;
+  --bg-sidebar: #0d0d1a;
+  --accent-primary: #00ff88;
+  --accent-secondary: #ff6b35;
+  --accent-tertiary: #7b2fff;
+  --accent-cyan: #00d4ff;
+  --text-primary: #e8e8f0;
+  --text-secondary: #a0a0b8;
+  --text-muted: #606080;
+  --border-color: #2a2a4a;
+  --border-glow: rgba(0, 255, 136, 0.3);
+  --danger: #ff3366;
+  --success: #00ff88;
+  --warning: #ffcc00;
+  --navbar-height: 64px;
+  --sidebar-width: 280px;
+  --light-bg-primary: #f0ede8;
+  --light-bg-secondary: #e8e4dc;
+  --light-bg-card: #faf8f5;
+  --light-bg-sidebar: #e0dbd0;
+  --light-text-primary: #1a1a2e;
+  --light-text-secondary: #4a4a6a;
+  --light-border-color: #c8c0b0;
+}

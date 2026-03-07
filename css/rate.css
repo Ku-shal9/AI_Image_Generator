@@ -1,0 +1,19 @@
+/* rate.css - Rate limit progress bar (home and profile) */
+.rate-limit-bar {
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.rate-limit-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  background: linear-gradient(90deg, var(--accent-primary), var(--warning));
+}
+
+.rate-limit-fill.exceeded {
+  background: var(--danger);
+}

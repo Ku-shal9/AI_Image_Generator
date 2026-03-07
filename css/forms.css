@@ -1,0 +1,64 @@
+/* forms.css - Form controls, labels, form-group */
+.form-control-retro {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: "Courier Prime", monospace;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  resize: vertical;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-control-retro:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.form-control-retro::placeholder {
+  color: var(--text-muted);
+}
+
+select.form-control-retro {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  cursor: pointer;
+  padding-right: 2rem;
+  background-image: none;
+}
+
+input[type="password"].form-control-retro {
+  font-family: monospace;
+}
+
+input.form-control-retro,
+select.form-control-retro,
+textarea.form-control-retro {
+  pointer-events: auto;
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}

@@ -1,0 +1,182 @@
+/* profile.css - Profile button, modal, avatar, rate bar in profile */
+.profile-btn {
+  background: none;
+  border: 2px solid var(--accent-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.profile-btn:hover {
+  box-shadow: 0 0 10px var(--accent-primary);
+  transform: scale(1.05);
+}
+
+.profile-avatar-small {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-initial {
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+}
+
+.profile-modal-content {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.profile-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 1rem;
+  color: var(--accent-primary);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px var(--accent-primary);
+}
+
+.profile-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-section-title {
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  color: var(--accent-secondary);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.profile-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-primary);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.profile-avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--accent-tertiary),
+    var(--accent-cyan)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Press Start 2P", monospace;
+  font-size: 2rem;
+  color: var(--bg-primary);
+  border: 3px solid var(--accent-primary);
+}
+
+.profile-pic-upload-btn {
+  background: transparent;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Courier Prime", monospace;
+}
+
+.profile-pic-upload-btn:hover {
+  background: var(--accent-cyan);
+  color: var(--bg-primary);
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bg-secondary);
+}
+
+.profile-info-row:last-child {
+  border-bottom: none;
+}
+
+.profile-info-row .profile-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.profile-info-row .profile-value {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.profile-rate-bar {
+  width: 100%;
+  height: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.profile-rate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.profile-rate-fill.exceeded {
+  background: linear-gradient(90deg, var(--danger), var(--accent-secondary));
+}
+
+.profile-rate-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: "VT323", monospace;
+}
+
+.profile-form .form-group {
+  margin-bottom: 1rem;
+}
+
+body.light-mode .profile-avatar-placeholder {
+  background: linear-gradient(135deg, #7b2fff, #00d4ff);
+}
+
+body.light-mode .profile-initial {
+  color: #f0ede8;
+}

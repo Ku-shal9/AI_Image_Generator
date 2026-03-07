@@ -1,0 +1,439 @@
+/* responsive.css - Media queries for mobile, tablet, touch */
+@media (max-width: 991.98px) {
+  .navbar {
+    position: sticky;
+    top: 0;
+  }
+
+  .page-wrapper {
+    padding-top: 0;
+  }
+
+  .home-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    max-height: 240px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+  }
+
+  .sidebar.collapsed {
+    max-height: 52px;
+    overflow: hidden;
+  }
+
+  .sidebar-collapse-btn {
+    display: none;
+  }
+
+  .main-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 100%;
+  }
+
+  .home-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    top: 0;
+    height: auto;
+  }
+
+  .sidebar.collapsed {
+    max-height: 48px;
+    overflow: hidden;
+  }
+
+  .main-content {
+    overflow: visible;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .about-hero-title {
+    font-size: 1rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-table {
+    font-size: 0.75rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .modal-content {
+    max-width: 100%;
+  }
+
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar .navbar-collapse {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+  }
+
+  .navbar-nav {
+    align-items: stretch !important;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .theme-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .navbar-nav .profile-btn {
+    margin: 0 auto;
+  }
+
+  .navbar-brand {
+    font-size: 0.65rem !important;
+  }
+
+  .nav-link {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem !important;
+  }
+
+  .theme-toggle-btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .profile-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sidebar-header {
+    padding: 0.75rem;
+  }
+
+  .sidebar-title {
+    font-size: 1.2rem;
+  }
+
+  .sidebar-body {
+    padding: 0.5rem;
+  }
+
+  .history-item {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .history-item .history-prompt {
+    -webkit-line-clamp: 1;
+  }
+
+  .sidebar-footer {
+    padding: 0.5rem;
+  }
+
+  .btn-retro-sm {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .card-retro {
+    padding: 1.25rem;
+  }
+
+  .card-retro-title {
+    font-size: 1.4rem;
+  }
+
+  .form-control-retro {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .btn-retro {
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+  }
+
+  .generated-image-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .generated-image-actions a,
+  .generated-image-actions button {
+    width: 100%;
+    max-width: 200px;
+    text-align: center;
+  }
+
+  .generated-image-actions a + button {
+    margin-top: 0.5rem;
+  }
+
+  .profile-modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .profile-title {
+    font-size: 0.85rem;
+  }
+
+  .profile-avatar-large,
+  .profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-avatar-placeholder {
+    font-size: 1.5rem;
+  }
+
+  .profile-info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .profile-rate-bar {
+    height: 10px;
+  }
+
+  .profile-form .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .profile-form .form-control-retro {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .profile-form button {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-table {
+    font-size: 0.8rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .modal-content {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    font-size: 0.65rem !important;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .role-selector {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 0.75rem;
+  }
+
+  .card-retro {
+    padding: 1rem;
+  }
+
+  .card-retro-title {
+    font-size: 1.3rem;
+  }
+
+  .form-control-retro {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .btn-retro {
+    font-size: 0.8rem;
+    padding: 0.4rem 1rem;
+  }
+
+  .generated-image-wrapper img {
+    max-height: 400px;
+  }
+
+  .generated-image-actions a,
+  .generated-image-actions button {
+    max-width: none;
+  }
+
+  .payment-wall {
+    padding: 1.25rem;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-prompt {
+    font-size: 0.9rem;
+  }
+
+  .modal-meta {
+    font-size: 0.75rem;
+  }
+
+  .modal-close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .sidebar-toggle-btn {
+    max-width: 44vw;
+    padding: 0.45rem 0.55rem;
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .navbar-toggler {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-avatar-large,
+  .profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-title {
+    font-size: 0.85rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .navbar-toggler,
+  .sidebar-toggle-btn,
+  .theme-toggle-btn,
+  .profile-btn,
+  .sidebar-collapse-btn,
+  .navbar-nav .nav-link,
+  .btn-retro,
+  .history-item {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .navbar-toggler,
+  .profile-btn,
+  .sidebar-collapse-btn {
+    min-width: 44px;
+  }
+
+  .navbar-toggler {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .sidebar-collapse-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem !important;
+  }
+
+  .btn-retro {
+    padding: 0.75rem 1.25rem;
+  }
+}

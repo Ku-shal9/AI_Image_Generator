@@ -1,0 +1,90 @@
+/* navbar.css - Navbar and theme toggle styles */
+.navbar {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+  min-height: var(--navbar-height);
+  height: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2001;
+  box-shadow: 0 2px 20px rgba(0, 255, 136, 0.1);
+}
+
+.navbar .container,
+.navbar .container-fluid {
+  min-height: var(--navbar-height);
+}
+
+.navbar .navbar-collapse {
+  max-height: calc(100vh - var(--navbar-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  position: relative;
+  z-index: 2100;
+}
+
+@supports (height: 100dvh) {
+  .navbar .navbar-collapse {
+    max-height: calc(100dvh - var(--navbar-height));
+  }
+}
+
+.navbar-brand {
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.85rem !important;
+  color: var(--accent-primary) !important;
+  text-shadow: 0 0 10px var(--accent-primary);
+  letter-spacing: 1px;
+}
+
+.navbar-brand span {
+  color: var(--accent-secondary);
+}
+
+.nav-link {
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  color: var(--text-secondary) !important;
+  padding: 0.4rem 1rem !important;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--accent-primary) !important;
+  border-color: var(--accent-primary);
+  text-shadow: 0 0 8px var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.05);
+}
+
+.navbar-toggler {
+  border-color: var(--accent-primary) !important;
+}
+
+.navbar-toggler-icon {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(100deg);
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-family: "Courier Prime", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}

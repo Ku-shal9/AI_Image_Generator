@@ -1,0 +1,109 @@
+/* sidebar-btns.css - Sidebar collapse/toggle buttons and collapsed states */
+.sidebar-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.sidebar-collapse-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+.sidebar-collapse-btn .collapse-icon {
+  line-height: 1;
+}
+
+.sidebar-toggle-btn {
+  display: none;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.sidebar-toggle-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle-btn {
+    display: inline-flex;
+    gap: 0.3rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar.collapsed {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 1rem 0.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-title {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-body,
+  .sidebar.collapsed .sidebar-footer {
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .sidebar.collapsed .sidebar-collapse-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar.collapsed {
+    max-height: 48px;
+    overflow: hidden;
+  }
+
+  .sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-title {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-body,
+  .sidebar.collapsed .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-collapse-btn {
+    width: 100%;
+  }
+}
