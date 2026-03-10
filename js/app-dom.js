@@ -21,7 +21,7 @@ let clearHistoryBtn;
 let currentImageData = null;
 
 const HF_MODELS = [
-  { id: "black-forest-labs/FLUX.1-schnell", steps: 4 },
+  { id: "black-forest-labs/FLUX.1-schnell", steps: 10 },
   { id: "stabilityai/stable-diffusion-xl-base-1.0", steps: 20 },
   { id: "runwayml/stable-diffusion-v1-5", steps: 20 },
 ];
