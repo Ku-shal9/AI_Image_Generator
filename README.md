@@ -19,122 +19,25 @@ AI-powered image generator with user authentication, rate limiting, and a retro-
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Styling | Bootstrap 5 (grid/utilities), custom modular CSS |
-| Auth | localStorage-based session, EmailJS for OTP emails |
+| Layer     | Technology                                                             |
+| --------- | ---------------------------------------------------------------------- |
+| Frontend  | HTML5, CSS3, Vanilla JavaScript                                        |
+| Styling   | Bootstrap 5 (grid/utilities), custom modular CSS                       |
+| Auth      | localStorage-based session, EmailJS for OTP emails                     |
 | Image API | Hugging Face Inference API (via Netlify Function), Puter.ai (fallback) |
-| Hosting | Netlify (static site + serverless functions) |
+| Hosting   | Netlify (static site + serverless functions)                           |
 
 ---
 
-## Architecture
+## Screenshots
 
-### Application Flow
+### Image Generation Page
 
-```
-                    +------------------+
-                    |   Sign-in Page   |
-                    +--------+---------+
-                             |
-              +--------------+--------------+
-              |                             |
-        [Guest Mode]                 [User/Admin]
-              |                             |
-              v                             v
-    +------------------+          +------------------+
-    |  Home (limited)   |          |  Home (full)     |
-    +------------------+          +------------------+
-              |                             |
-              +--------------+--------------+
-                             |
-                             v
-                    +------------------+
-                    | Generate Image   |
-                    +--------+---------+
-                             |
-                    +--------+--------+
-                    |                 |
-              [Netlify]          [Puter.ai]
-              (Hugging Face)     (fallback)
-```
+![Image Generation](./image/Photo%20Galli-Image%20Generation.png)
 
-### Image Generation Flow
+### Sign In Page
 
-```
-+----------+     POST prompt,seed      +---------------------+
-| Browser  | -----------------------> | Netlify Function    |
-| (app.js) |                          | generate-image.js    |
-+----------+                          +----------+----------+
-      |                                        |
-      | (if localhost: skip, use Puter)         | HF_TOKEN from env
-      |                                        v
-      |                               +---------------------+
-      |                               | Hugging Face API    |
-      |                               | (FLUX/SDXL/SD v1.5) |
-      |                               +----------+----------+
-      |                                          |
-      | <-------- base64 image ------------------+
-      |
-      v
-+----------+
-| Display  |
-| Download |
-| Save     |
-+----------+
-```
-
-### Authentication Flow
-
-```
-+------------------+
-| Sign-in Page     |
-+--------+---------+
-         |
-         +---> [Sign In] ---> validate credentials ---> save session ---> redirect
-         |
-         +---> [Forgot Password]
-                    |
-                    v
-              +------------------+
-              | Enter username   |
-              +--------+---------+
-                       |
-                       v
-              +------------------+
-              | Generate OTP     |
-              | Send via EmailJS |
-              +--------+---------+
-                       |
-                       v
-              +------------------+
-              | Enter OTP        |
-              +--------+---------+
-                       |
-                       v
-              +------------------+
-              | New password     |
-              | Reset complete   |
-              +------------------+
-```
-
-### Page Structure
-
-```
-index.html (Home)
-    |
-    +-- Prompt input, generate button, rate limit bar
-    +-- Fresh image section (display, download, save to gallery)
-    +-- Sidebar (prompt history)
-
-html/
-    +-- signin.html    (Sign in, sign up, forgot password, guest mode)
-    +-- about.html    (Project info, how it works)
-    +-- photos.html   (Gallery grid, modal view, delete)
-    +-- pricing.html  (Plan cards, upgrade CTA)
-    +-- admin.html    (User table, create user, rate limits, user details)
-```
+![Sign In Page](./image/Photo%20Galli-Sign%20In%20page.png)
 
 ---
 
@@ -214,6 +117,7 @@ AI_Image_Generator/
 ## Installation
 
 1. Clone the repository:
+
    ```
    git clone <repository-url>
    cd AI_Image_Generator
@@ -234,8 +138,8 @@ AI_Image_Generator/
 
 Configure these in the Netlify dashboard (Site settings > Environment variables):
 
-| Variable | Description | Required |
-|----------|-------------|----------|
+| Variable | Description                   | Required                |
+| -------- | ----------------------------- | ----------------------- |
 | HF_TOKEN | Hugging Face API token (read) | Yes (for HF generation) |
 
 EmailJS credentials are in `auth-const.js` (service ID, template ID, public key). For production, consider moving these to environment variables.
@@ -255,10 +159,10 @@ Netlify auto-detects `netlify/functions/` for serverless functions.
 
 ## Default Credentials
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin | admin123 |
-| User | demo | demo123 |
+| Role  | Username | Password |
+| ----- | -------- | -------- |
+| Admin | admin    | admin123 |
+| User  | demo     | demo123  |
 
 ---
 
