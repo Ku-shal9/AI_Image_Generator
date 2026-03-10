@@ -20,15 +20,18 @@ let clearHistoryBtn;
 
 let currentImageData = null;
 
+// Huggingf face models
 const HF_MODELS = [
   { id: "black-forest-labs/FLUX.1-schnell", steps: 4 },
   { id: "stabilityai/stable-diffusion-xl-base-1.0", steps: 20 },
   { id: "runwayml/stable-diffusion-v1-5", steps: 20 },
 ];
 
+// attaching to API endpoint
 const HF_API_BASE = "https://router.huggingface.co/hf-inference/models";
 
-const HF_OWNER_TOKEN = "";
+// token is retrieved from Netlify's env variable
+const HF_OWNER_TOKEN = "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";
 
 function getHuggingFaceToken() {
   try {
