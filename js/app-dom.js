@@ -31,7 +31,7 @@ const HF_MODELS = [
 const HF_API_BASE = "https://router.huggingface.co/hf-inference/models";
 
 // token is retrieved from Netlify's env variable
-const HF_OWNER_TOKEN = "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";
+const HF_OWNER_TOKEN = "";
 
 function getHuggingFaceToken() {
   try {
